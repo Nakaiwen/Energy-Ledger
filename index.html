@@ -1,0 +1,2390 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>能量帳 · Money Energy Ledger</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@300;400;500;600;700&family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,300;1,400&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #f3ece0;
+    --bg-soft: #ebe2d1;
+    --bg-card: #faf5ea;
+    --ink: #2b251e;
+    --ink-2: #5a4f43;
+    --ink-3: #8a7d6c;
+    --ink-4: #b5a78f;
+    --line: #d8c9ac;
+    --line-soft: #e3d6bc;
+    --gold: #b08642;
+    --gold-soft: #d4b079;
+
+    --water: #3f6e7e;   /* 水 - 滋養、修復 */
+    --wood:  #6b8c52;   /* 木 - 成長 */
+    --fire:  #c45a3c;   /* 火 - 創造、連結 */
+    --earth: #b48642;   /* 土 - 必要 */
+    --metal: #8a7350;   /* 金 - 布施、流通 */
+    --mist:  #9a958b;   /* 霧 - 消耗、補償 */
+
+    --shadow-sm: 0 1px 2px rgba(60,45,20,.06), 0 2px 8px rgba(60,45,20,.04);
+    --shadow-md: 0 4px 16px rgba(60,45,20,.08), 0 1px 3px rgba(60,45,20,.06);
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html, body {
+    background: var(--bg);
+    color: var(--ink);
+    font-family: "Noto Serif TC", "Songti TC", "PingFang TC", serif;
+    font-weight: 400;
+    line-height: 1.55;
+    min-height: 100vh;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  body {
+    background-image:
+      radial-gradient(at 12% 8%, rgba(176,134,66,.08) 0%, transparent 45%),
+      radial-gradient(at 88% 92%, rgba(63,110,126,.05) 0%, transparent 45%);
+    background-attachment: fixed;
+  }
+
+  .container {
+    max-width: 720px;
+    margin: 0 auto;
+    padding: 28px 22px 80px;
+  }
+
+  /* ===== Header ===== */
+  header {
+    margin-bottom: 26px;
+  }
+  .brand {
+    display: flex;
+    align-items: baseline;
+    gap: 14px;
+    margin-bottom: 6px;
+  }
+  .brand-mark {
+    font-family: "Cormorant Garamond", serif;
+    font-size: 13px;
+    letter-spacing: 0.18em;
+    color: var(--gold);
+    text-transform: uppercase;
+  }
+  .brand-title {
+    font-size: 30px;
+    font-weight: 500;
+    letter-spacing: 0.08em;
+    color: var(--ink);
+  }
+  .brand-sub {
+    font-size: 13px;
+    color: var(--ink-3);
+    letter-spacing: 0.05em;
+    font-style: italic;
+    font-family: "Cormorant Garamond", "Noto Serif TC", serif;
+  }
+
+  .date-stamp {
+    margin-top: 16px;
+    padding-top: 14px;
+    border-top: 1px dashed var(--line-soft);
+    font-family: "Cormorant Garamond", "Noto Serif TC", serif;
+    display: flex;
+    align-items: baseline;
+    gap: 12px;
+    font-size: 12.5px;
+    color: var(--ink-3);
+    letter-spacing: 0.28em;
+  }
+  .date-stamp-num {
+    color: var(--gold);
+  }
+  .date-stamp-divider {
+    color: var(--line);
+    letter-spacing: 0;
+  }
+
+  /* ===== Tabs ===== */
+  .tabs {
+    display: flex;
+    gap: 0;
+    margin: 22px 0 24px;
+    border-bottom: 1px solid var(--line);
+  }
+  .tab {
+    flex: 1;
+    background: none;
+    border: none;
+    padding: 12px 4px;
+    font-family: inherit;
+    font-size: 15px;
+    color: var(--ink-3);
+    cursor: pointer;
+    letter-spacing: 0.18em;
+    position: relative;
+    transition: color .25s;
+  }
+  .tab:hover { color: var(--ink-2); }
+  .tab.active { color: var(--ink); }
+  .tab.active::after {
+    content: "";
+    position: absolute;
+    left: 25%; right: 25%;
+    bottom: -1px;
+    height: 2px;
+    background: var(--gold);
+  }
+
+  /* ===== Panels ===== */
+  .panel { display: none; animation: fade .45s ease; }
+  .panel.active { display: block; }
+  @keyframes fade {
+    from { opacity: 0; transform: translateY(4px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  /* ===== Cards ===== */
+  .card {
+    background: var(--bg-card);
+    border: 1px solid var(--line-soft);
+    border-radius: 4px;
+    padding: 22px 22px;
+    margin-bottom: 18px;
+    box-shadow: var(--shadow-sm);
+  }
+  .card-title {
+    font-size: 13px;
+    letter-spacing: 0.22em;
+    color: var(--ink-3);
+    text-transform: uppercase;
+    margin-bottom: 16px;
+    font-family: "Cormorant Garamond", "Noto Serif TC", serif;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .card-title::before {
+    content: "";
+    display: inline-block;
+    width: 18px;
+    height: 1px;
+    background: var(--gold);
+  }
+
+  /* ===== Quick add form ===== */
+  .type-toggle {
+    display: flex;
+    background: var(--bg-soft);
+    border-radius: 2px;
+    padding: 3px;
+    margin-bottom: 18px;
+  }
+  .type-toggle button {
+    flex: 1;
+    background: none;
+    border: none;
+    padding: 10px;
+    font-family: inherit;
+    font-size: 15px;
+    color: var(--ink-3);
+    cursor: pointer;
+    letter-spacing: 0.1em;
+    border-radius: 2px;
+    transition: all .2s;
+  }
+  .type-toggle button.active {
+    background: var(--bg-card);
+    color: var(--ink);
+    box-shadow: 0 1px 3px rgba(60,45,20,.08);
+  }
+
+  .amount-row {
+    display: flex;
+    align-items: baseline;
+    border-bottom: 1px solid var(--line);
+    padding-bottom: 10px;
+    margin-bottom: 18px;
+  }
+  .currency {
+    font-family: "Cormorant Garamond", serif;
+    font-size: 26px;
+    color: var(--ink-3);
+    margin-right: 8px;
+  }
+  .amount-input {
+    flex: 1;
+    background: none;
+    border: none;
+    outline: none;
+    font-family: "Cormorant Garamond", "Noto Serif TC", serif;
+    font-size: 36px;
+    font-weight: 400;
+    color: var(--ink);
+    width: 100%;
+  }
+  .amount-input::placeholder { color: var(--ink-4); }
+
+  .field-label {
+    font-size: 12px;
+    letter-spacing: 0.2em;
+    color: var(--ink-3);
+    margin-bottom: 10px;
+    text-transform: uppercase;
+    font-family: "Cormorant Garamond", "Noto Serif TC", serif;
+  }
+
+  .chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 7px;
+    margin-bottom: 18px;
+  }
+  .chip {
+    background: var(--bg-soft);
+    border: 1px solid transparent;
+    border-radius: 100px;
+    padding: 6px 13px;
+    font-family: inherit;
+    font-size: 13px;
+    color: var(--ink-2);
+    cursor: pointer;
+    transition: all .2s;
+    letter-spacing: 0.04em;
+  }
+  .chip:hover { background: var(--line-soft); }
+  .chip.active {
+    background: var(--ink);
+    color: var(--bg-card);
+    border-color: var(--ink);
+  }
+  .chip[data-element="water"].active { background: var(--water); border-color: var(--water); }
+  .chip[data-element="wood"].active  { background: var(--wood);  border-color: var(--wood); }
+  .chip[data-element="fire"].active  { background: var(--fire);  border-color: var(--fire); }
+  .chip[data-element="earth"].active { background: var(--earth); border-color: var(--earth); }
+  .chip[data-element="metal"].active { background: var(--metal); border-color: var(--metal); }
+  .chip[data-element="mist"].active  { background: var(--mist);  border-color: var(--mist); }
+
+  .note-input {
+    width: 100%;
+    background: var(--bg-soft);
+    border: 1px solid var(--line-soft);
+    border-radius: 3px;
+    padding: 10px 12px;
+    font-family: inherit;
+    font-size: 14px;
+    color: var(--ink);
+    margin-bottom: 18px;
+    outline: none;
+    transition: border .2s;
+  }
+  .note-input:focus { border-color: var(--gold-soft); }
+
+  .submit-btn {
+    width: 100%;
+    background: var(--ink);
+    color: var(--bg-card);
+    border: none;
+    padding: 13px;
+    font-family: inherit;
+    font-size: 15px;
+    letter-spacing: 0.25em;
+    cursor: pointer;
+    border-radius: 2px;
+    transition: all .2s;
+  }
+  .submit-btn:hover { background: var(--gold); }
+  .submit-btn:disabled {
+    background: var(--ink-4);
+    cursor: not-allowed;
+  }
+
+  /* ===== Transaction list ===== */
+  .txn {
+    display: grid;
+    grid-template-columns: 36px 1fr auto;
+    gap: 12px;
+    align-items: center;
+    padding: 14px 0;
+    border-bottom: 1px solid var(--line-soft);
+  }
+  .txn:last-child { border-bottom: none; }
+  .txn-glyph {
+    width: 32px; height: 32px;
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 14px;
+    color: white;
+    font-weight: 500;
+    font-family: "Noto Serif TC", serif;
+  }
+  .txn-info { min-width: 0; }
+  .txn-tag {
+    font-size: 11px;
+    letter-spacing: 0.15em;
+    color: var(--ink-3);
+    margin-bottom: 2px;
+  }
+  .txn-desc {
+    font-size: 14px;
+    color: var(--ink);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .txn-amount {
+    font-family: "Cormorant Garamond", "Noto Serif TC", serif;
+    font-size: 18px;
+    font-weight: 500;
+  }
+  .txn-amount.income { color: var(--wood); }
+  .txn-amount.expense { color: var(--ink-2); }
+
+  .empty {
+    text-align: center;
+    padding: 36px 16px;
+    color: var(--ink-3);
+    font-style: italic;
+    font-family: "Cormorant Garamond", "Noto Serif TC", serif;
+    font-size: 14px;
+  }
+
+  /* ===== Flow panel ===== */
+  .summary-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 14px;
+    margin-bottom: 8px;
+  }
+  .summary-cell {
+    text-align: center;
+    padding: 8px 4px;
+  }
+  .summary-cell-label {
+    font-size: 11px;
+    letter-spacing: 0.18em;
+    color: var(--ink-3);
+    margin-bottom: 6px;
+    text-transform: uppercase;
+    font-family: "Cormorant Garamond", "Noto Serif TC", serif;
+  }
+  .summary-cell-value {
+    font-family: "Cormorant Garamond", "Noto Serif TC", serif;
+    font-size: 24px;
+    font-weight: 500;
+    color: var(--ink);
+  }
+  .summary-cell-value.pos { color: var(--wood); }
+  .summary-cell-value.neg { color: var(--fire); }
+
+  .energy-bar {
+    height: 38px;
+    border-radius: 2px;
+    background: var(--bg-soft);
+    overflow: hidden;
+    display: flex;
+    margin-top: 8px;
+    margin-bottom: 16px;
+  }
+  .energy-bar-seg {
+    height: 100%;
+    transition: width .6s ease;
+    position: relative;
+  }
+  .energy-bar-seg span {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 11px;
+    letter-spacing: 0.1em;
+    font-family: "Cormorant Garamond", "Noto Serif TC", serif;
+  }
+
+  .legend {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px 18px;
+    font-size: 12px;
+    color: var(--ink-2);
+  }
+  .legend-item {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .legend-dot {
+    width: 8px; height: 8px;
+    border-radius: 50%;
+  }
+
+  .insight {
+    margin-top: 16px;
+    padding: 14px 16px;
+    background: var(--bg-soft);
+    border-left: 2px solid var(--gold);
+    font-size: 13.5px;
+    color: var(--ink-2);
+    line-height: 1.7;
+    font-style: italic;
+  }
+
+  /* ===== Score ===== */
+  .score-card {
+    background: linear-gradient(135deg, #2b251e, #4a3f30);
+    color: var(--bg-card);
+    border: none;
+    text-align: center;
+    padding: 30px 22px;
+  }
+  .score-card .card-title {
+    color: var(--gold-soft);
+    justify-content: center;
+  }
+  .score-card .card-title::before { background: var(--gold-soft); }
+  .score-value {
+    font-family: "Cormorant Garamond", serif;
+    font-size: 56px;
+    font-weight: 400;
+    line-height: 1;
+    letter-spacing: 0.02em;
+    margin: 6px 0 8px;
+  }
+  .score-label {
+    font-size: 12px;
+    color: var(--gold-soft);
+    letter-spacing: 0.25em;
+    text-transform: uppercase;
+    font-family: "Cormorant Garamond", "Noto Serif TC", serif;
+  }
+
+  /* ===== 圖鑑 ===== */
+  .element-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+  }
+  @media (max-width: 480px) {
+    .element-grid { grid-template-columns: 1fr; }
+  }
+  .element-card {
+    background: var(--bg-card);
+    border: 1px solid var(--line-soft);
+    border-radius: 4px;
+    padding: 18px;
+    position: relative;
+    overflow: hidden;
+    transition: transform .25s, box-shadow .25s;
+  }
+  .element-card::before {
+    content: "";
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%; height: 3px;
+  }
+  .element-card[data-el="water"]::before { background: var(--water); }
+  .element-card[data-el="wood"]::before  { background: var(--wood); }
+  .element-card[data-el="fire"]::before  { background: var(--fire); }
+  .element-card[data-el="earth"]::before { background: var(--earth); }
+  .element-card[data-el="metal"]::before { background: var(--metal); }
+  .element-card[data-el="mist"]::before  { background: var(--mist); }
+
+  .element-glyph {
+    font-size: 28px;
+    font-weight: 500;
+    margin-bottom: 4px;
+    font-family: "Noto Serif TC", serif;
+  }
+  .element-name {
+    font-size: 14px;
+    letter-spacing: 0.1em;
+    color: var(--ink);
+    margin-bottom: 2px;
+  }
+  .element-desc {
+    font-size: 12px;
+    color: var(--ink-3);
+    margin-bottom: 12px;
+    font-style: italic;
+    font-family: "Cormorant Garamond", "Noto Serif TC", serif;
+  }
+  .element-amount {
+    font-family: "Cormorant Garamond", serif;
+    font-size: 22px;
+    font-weight: 500;
+    color: var(--ink);
+  }
+  .element-pct {
+    font-size: 11px;
+    color: var(--ink-3);
+    letter-spacing: 0.1em;
+  }
+
+  /* Reset button */
+  .danger-zone {
+    margin-top: 32px;
+    text-align: center;
+  }
+  .reset-btn {
+    background: none;
+    border: 1px solid var(--line);
+    color: var(--ink-3);
+    padding: 8px 18px;
+    border-radius: 100px;
+    font-family: inherit;
+    font-size: 12px;
+    cursor: pointer;
+    letter-spacing: 0.1em;
+    transition: all .2s;
+  }
+  .reset-btn:hover {
+    border-color: var(--fire);
+    color: var(--fire);
+  }
+
+  /* ===== Review panel ===== */
+  .month-nav {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 18px;
+    padding: 0 4px;
+  }
+  .month-nav-btn {
+    background: var(--bg-soft);
+    border: 1px solid var(--line-soft);
+    width: 38px; height: 38px;
+    border-radius: 50%;
+    color: var(--ink-2);
+    cursor: pointer;
+    font-family: "Cormorant Garamond", serif;
+    font-size: 18px;
+    transition: all .2s;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .month-nav-btn:hover:not(:disabled) {
+    background: var(--ink);
+    color: var(--bg-card);
+    border-color: var(--ink);
+  }
+  .month-nav-btn:disabled { opacity: 0.3; cursor: not-allowed; }
+  .month-nav-label {
+    font-family: "Cormorant Garamond", "Noto Serif TC", serif;
+    font-size: 20px;
+    letter-spacing: 0.18em;
+    color: var(--ink);
+  }
+
+  .review-hero {
+    background: var(--bg-card);
+    border: 1px solid var(--line-soft);
+    border-radius: 4px;
+    padding: 36px 24px 32px;
+    text-align: center;
+    margin-bottom: 18px;
+    position: relative;
+    overflow: hidden;
+    box-shadow: var(--shadow-sm);
+  }
+  .review-hero::before {
+    content: "";
+    position: absolute;
+    top: -60px; right: -60px;
+    width: 180px; height: 180px;
+    background: radial-gradient(circle, rgba(176,134,66,.12), transparent 70%);
+    pointer-events: none;
+  }
+  .review-hero::after {
+    content: "";
+    position: absolute;
+    bottom: -80px; left: -60px;
+    width: 200px; height: 200px;
+    background: radial-gradient(circle, rgba(63,110,126,.08), transparent 70%);
+    pointer-events: none;
+  }
+  .review-tagline {
+    font-family: "Cormorant Garamond", serif;
+    font-size: 12px;
+    letter-spacing: 0.32em;
+    color: var(--gold);
+    text-transform: uppercase;
+    margin-bottom: 14px;
+    position: relative;
+  }
+  .review-headline {
+    font-size: 22px;
+    font-weight: 500;
+    color: var(--ink);
+    margin-bottom: 12px;
+    line-height: 1.5;
+    letter-spacing: 0.06em;
+    position: relative;
+  }
+  .review-poem {
+    font-size: 14px;
+    color: var(--ink-2);
+    font-style: italic;
+    font-family: "Cormorant Garamond", "Noto Serif TC", serif;
+    line-height: 1.85;
+    white-space: pre-line;
+    position: relative;
+  }
+
+  .report-list {
+    margin-top: 4px;
+  }
+  .report-item {
+    display: grid;
+    grid-template-columns: 32px 1fr auto;
+    gap: 12px;
+    align-items: center;
+    padding: 12px 0;
+    border-bottom: 1px solid var(--line-soft);
+  }
+  .report-item:last-child { border-bottom: none; }
+  .report-item-glyph {
+    width: 28px; height: 28px;
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    color: white;
+    font-size: 13px;
+    font-family: "Noto Serif TC", serif;
+  }
+  .report-item-info { min-width: 0; }
+  .report-item-tag {
+    font-size: 11px;
+    color: var(--ink-3);
+    letter-spacing: 0.12em;
+    margin-bottom: 2px;
+  }
+  .report-item-desc {
+    font-size: 14px;
+    color: var(--ink);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .report-item-amount {
+    font-family: "Cormorant Garamond", "Noto Serif TC", serif;
+    font-size: 17px;
+    color: var(--ink);
+  }
+
+  .pattern-line {
+    padding: 12px 16px;
+    background: var(--bg-soft);
+    border-left: 2px solid var(--mist);
+    font-size: 13.5px;
+    color: var(--ink-2);
+    margin-bottom: 12px;
+    line-height: 1.7;
+    border-radius: 0 3px 3px 0;
+  }
+  .pattern-line strong {
+    color: var(--ink);
+    font-weight: 500;
+  }
+
+  .prompt-list {
+    list-style: none;
+    counter-reset: prompt;
+  }
+  .prompt-item {
+    position: relative;
+    padding: 16px 0 16px 36px;
+    border-bottom: 1px dashed var(--line-soft);
+    font-size: 14px;
+    color: var(--ink-2);
+    line-height: 1.85;
+    font-style: italic;
+    font-family: "Cormorant Garamond", "Noto Serif TC", serif;
+  }
+  .prompt-item:last-child { border-bottom: none; }
+  .prompt-item::before {
+    counter-increment: prompt;
+    content: counter(prompt, lower-roman) ".";
+    position: absolute;
+    left: 6px;
+    top: 16px;
+    font-family: "Cormorant Garamond", serif;
+    color: var(--gold);
+    font-size: 14px;
+    letter-spacing: 0.05em;
+    font-style: normal;
+  }
+
+  .complete-btn {
+    width: 100%;
+    background: var(--bg-card);
+    color: var(--ink-2);
+    border: 1px solid var(--line);
+    padding: 13px;
+    font-family: inherit;
+    font-size: 13px;
+    letter-spacing: 0.28em;
+    cursor: pointer;
+    border-radius: 2px;
+    transition: all .25s;
+    margin-top: 6px;
+  }
+  .complete-btn:hover {
+    background: var(--ink);
+    color: var(--bg-card);
+    border-color: var(--ink);
+  }
+  .complete-btn.done {
+    background: transparent;
+    color: var(--wood);
+    border-color: var(--wood);
+    cursor: default;
+  }
+  .complete-btn.done:hover {
+    background: transparent;
+    color: var(--wood);
+  }
+
+  .tab-badge {
+    display: inline-block;
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    background: var(--gold);
+    margin-left: 4px;
+    vertical-align: super;
+    box-shadow: 0 0 0 0 rgba(176,134,66,.6);
+    animation: pulse 2.4s infinite;
+  }
+  @keyframes pulse {
+    0%   { box-shadow: 0 0 0 0 rgba(176,134,66,.55); }
+    70%  { box-shadow: 0 0 0 8px rgba(176,134,66,0); }
+    100% { box-shadow: 0 0 0 0 rgba(176,134,66,0); }
+  }
+
+  .empty-month {
+    text-align: center;
+    padding: 60px 20px;
+    color: var(--ink-3);
+    font-style: italic;
+    font-family: "Cormorant Garamond", "Noto Serif TC", serif;
+    font-size: 15px;
+    line-height: 1.8;
+  }
+  .empty-month::before {
+    content: "○";
+    display: block;
+    font-size: 28px;
+    color: var(--line);
+    margin-bottom: 14px;
+  }
+
+  /* ===== Journal & Reflection ===== */
+  .reflection-input {
+    width: 100%;
+    background: var(--bg-soft);
+    border: 1px solid var(--line-soft);
+    border-radius: 3px;
+    padding: 10px 12px;
+    font-family: inherit;
+    font-size: 13px;
+    color: var(--ink);
+    font-style: italic;
+    margin-bottom: 4px;
+    outline: none;
+    resize: vertical;
+    min-height: 50px;
+    line-height: 1.65;
+    transition: border .2s;
+  }
+  .reflection-input:focus { border-color: var(--gold-soft); }
+  .reflection-input::placeholder {
+    color: var(--ink-4);
+    font-style: italic;
+  }
+  .reflection-helper {
+    font-size: 11px;
+    color: var(--ink-3);
+    letter-spacing: 0.15em;
+    margin-bottom: 18px;
+    font-family: "Cormorant Garamond", "Noto Serif TC", serif;
+    padding-left: 2px;
+  }
+
+  .journal-card {
+    background:
+      linear-gradient(180deg, rgba(248,240,224,.6) 0%, transparent 100%),
+      var(--bg-card);
+    position: relative;
+    overflow: hidden;
+  }
+  .journal-card::after {
+    content: "";
+    position: absolute;
+    top: 0; right: 0;
+    width: 140px; height: 140px;
+    background: radial-gradient(circle at top right, rgba(176,134,66,.1), transparent 60%);
+    pointer-events: none;
+  }
+  .journal-helper {
+    font-size: 13px;
+    color: var(--ink-2);
+    font-style: italic;
+    font-family: "Cormorant Garamond", "Noto Serif TC", serif;
+    line-height: 1.85;
+    margin-bottom: 16px;
+    position: relative;
+  }
+  .journal-today {
+    font-family: "Cormorant Garamond", "Noto Serif TC", serif;
+    font-size: 13.5px;
+    color: var(--gold);
+    letter-spacing: 0.12em;
+    margin-top: -6px;
+    margin-bottom: 14px;
+    font-style: italic;
+    position: relative;
+  }
+  .prompt-chips {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-bottom: 14px;
+    position: relative;
+  }
+  .prompt-chip {
+    background: transparent;
+    border: 1px dashed var(--line);
+    border-radius: 3px;
+    padding: 11px 14px;
+    font-family: "Cormorant Garamond", "Noto Serif TC", serif;
+    font-size: 13.5px;
+    color: var(--ink-2);
+    cursor: pointer;
+    text-align: left;
+    font-style: italic;
+    transition: all .25s;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .prompt-chip::before {
+    content: "✎";
+    color: var(--gold);
+    font-size: 12px;
+    font-style: normal;
+  }
+  .prompt-chip:hover {
+    border-color: var(--gold);
+    color: var(--ink);
+    background: rgba(176,134,66,.05);
+    border-style: solid;
+  }
+  .journal-textarea {
+    width: 100%;
+    background: var(--bg-soft);
+    border: 1px solid var(--line-soft);
+    border-radius: 3px;
+    padding: 13px 14px;
+    font-family: inherit;
+    font-size: 14px;
+    color: var(--ink);
+    outline: none;
+    resize: vertical;
+    min-height: 88px;
+    line-height: 1.75;
+    margin-bottom: 10px;
+    transition: border .2s;
+    position: relative;
+  }
+  .journal-textarea:focus { border-color: var(--gold-soft); }
+  .journal-textarea::placeholder {
+    color: var(--ink-4);
+    font-style: italic;
+  }
+  .journal-meta {
+    font-size: 11px;
+    color: var(--ink-3);
+    letter-spacing: 0.12em;
+    margin-bottom: 12px;
+    font-family: "Cormorant Garamond", "Noto Serif TC", serif;
+    font-style: italic;
+    min-height: 16px;
+    position: relative;
+  }
+
+  /* Reflection note shown beneath transaction in list */
+  .txn-reflection {
+    grid-column: 2 / -1;
+    margin-top: 8px;
+    padding: 8px 12px;
+    background: rgba(176,134,66,.06);
+    border-left: 2px solid var(--gold-soft);
+    border-radius: 0 3px 3px 0;
+    font-size: 12.5px;
+    color: var(--ink-2);
+    font-style: italic;
+    font-family: "Cormorant Garamond", "Noto Serif TC", serif;
+    line-height: 1.65;
+    white-space: normal;
+  }
+  .txn {
+    grid-template-rows: auto auto;
+  }
+  .txn-glyph, .txn-info, .txn-amount {
+    grid-row: 1;
+  }
+
+  /* Journal review section */
+  .journal-stat-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    margin-bottom: 10px;
+  }
+  @media (max-width: 460px) {
+    .journal-stat-row { grid-template-columns: 1fr; }
+  }
+  .journal-stat {
+    background: var(--bg-soft);
+    padding: 12px 14px;
+    border-radius: 3px;
+  }
+  .journal-stat-label {
+    font-size: 10.5px;
+    color: var(--ink-3);
+    letter-spacing: 0.18em;
+    margin-bottom: 4px;
+    font-family: "Cormorant Garamond", "Noto Serif TC", serif;
+    text-transform: uppercase;
+  }
+  .journal-stat-value {
+    font-size: 14px;
+    color: var(--ink);
+    line-height: 1.4;
+  }
+  .journal-stat-value .num {
+    font-family: "Cormorant Garamond", serif;
+    font-size: 22px;
+    font-weight: 500;
+    margin-right: 4px;
+    color: var(--ink);
+  }
+  .journal-section-title {
+    font-size: 11px;
+    color: var(--ink-3);
+    letter-spacing: 0.22em;
+    margin: 16px 0 10px;
+    font-family: "Cormorant Garamond", "Noto Serif TC", serif;
+    text-transform: uppercase;
+  }
+  .journal-entries { margin-top: 4px; }
+  .journal-entry {
+    padding: 14px 0;
+    border-bottom: 1px dashed var(--line-soft);
+  }
+  .journal-entry:last-child { border-bottom: none; padding-bottom: 4px; }
+  .journal-entry-date {
+    font-family: "Cormorant Garamond", serif;
+    font-size: 12px;
+    color: var(--gold);
+    letter-spacing: 0.18em;
+    margin-bottom: 6px;
+  }
+  .journal-entry-content {
+    font-size: 14px;
+    color: var(--ink);
+    line-height: 1.75;
+    margin-bottom: 4px;
+    white-space: pre-line;
+  }
+  .journal-entry-prompt {
+    font-size: 11px;
+    color: var(--ink-3);
+    font-style: italic;
+    font-family: "Cormorant Garamond", "Noto Serif TC", serif;
+    letter-spacing: 0.05em;
+    margin-top: 4px;
+  }
+  .journal-entry-actions {
+    display: flex;
+    gap: 18px;
+    margin-top: 10px;
+    padding-top: 4px;
+  }
+  .journal-action-btn {
+    background: none;
+    border: none;
+    color: var(--ink-3);
+    font-family: "Cormorant Garamond", "Noto Serif TC", serif;
+    font-size: 12px;
+    letter-spacing: 0.18em;
+    cursor: pointer;
+    padding: 0;
+    transition: color .2s;
+    font-style: italic;
+  }
+  .journal-action-btn:hover { color: var(--gold); }
+  .journal-action-btn.danger:hover { color: var(--fire); }
+  .journal-action-btn.primary {
+    color: var(--ink);
+    font-style: normal;
+    font-weight: 500;
+    letter-spacing: 0.2em;
+  }
+  .journal-action-btn.primary:hover { color: var(--gold); }
+  .journal-edit-area {
+    width: 100%;
+    background: var(--bg-soft);
+    border: 1px solid var(--gold-soft);
+    border-radius: 3px;
+    padding: 12px 14px;
+    font-family: inherit;
+    font-size: 14px;
+    color: var(--ink);
+    outline: none;
+    resize: vertical;
+    min-height: 80px;
+    line-height: 1.75;
+    margin-top: 4px;
+    margin-bottom: 4px;
+  }
+  .journal-entry.editing {
+    padding-bottom: 16px;
+  }
+  .show-all-btn {
+    display: block;
+    margin: 18px auto 4px;
+    background: none;
+    border: 1px solid var(--line);
+    color: var(--ink-3);
+    padding: 8px 22px;
+    border-radius: 100px;
+    font-family: "Cormorant Garamond", "Noto Serif TC", serif;
+    font-size: 12px;
+    cursor: pointer;
+    letter-spacing: 0.18em;
+    transition: all .2s;
+    font-style: italic;
+  }
+  .show-all-btn:hover {
+    border-color: var(--gold);
+    color: var(--gold);
+  }
+
+  /* Toast */
+  .toast {
+    position: fixed;
+    bottom: 24px;
+    left: 50%;
+    transform: translateX(-50%) translateY(20px);
+    background: var(--ink);
+    color: var(--bg-card);
+    padding: 10px 20px;
+    border-radius: 100px;
+    font-size: 13px;
+    letter-spacing: 0.1em;
+    opacity: 0;
+    pointer-events: none;
+    transition: all .3s;
+    z-index: 100;
+  }
+  .toast.show {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+  }
+</style>
+</head>
+<body>
+<div class="container">
+
+  <header>
+    <div class="brand">
+      <div class="brand-title">能量帳</div>
+      <div class="brand-mark">Money · Energy · Ledger</div>
+    </div>
+    <div class="brand-sub">記錄金錢，也記錄你的生命流向</div>
+    <div class="date-stamp">
+      <span class="date-stamp-num" id="todayStampNum">—</span>
+      <span class="date-stamp-divider">·</span>
+      <span class="date-stamp-day" id="todayStampDay">—</span>
+    </div>
+  </header>
+
+  <nav class="tabs">
+    <button class="tab active" data-tab="record">記　錄</button>
+    <button class="tab" data-tab="flow">流　向</button>
+    <button class="tab" data-tab="atlas">圖　鑑</button>
+    <button class="tab" data-tab="review">回　顧<span class="tab-badge" id="tabBadge" style="display:none"></span></button>
+  </nav>
+
+  <!-- ====== RECORD ====== -->
+  <section class="panel active" id="panel-record">
+
+    <div class="card">
+      <div class="card-title">快速記一筆</div>
+
+      <div class="type-toggle">
+        <button class="active" data-type="expense">支　出</button>
+        <button data-type="income">收　入</button>
+      </div>
+
+      <div class="amount-row">
+        <span class="currency">NT$</span>
+        <input type="number" inputmode="decimal" class="amount-input" id="amount" placeholder="0">
+      </div>
+
+      <div class="field-label">類別</div>
+      <div class="chips" id="categoryChips"></div>
+
+      <div class="field-label">能量屬性</div>
+      <div class="chips" id="energyChips"></div>
+
+      <div class="field-label">當下狀態</div>
+      <div class="chips" id="moodChips"></div>
+
+      <input type="text" class="note-input" id="note" placeholder="備註（選填）">
+
+      <textarea class="reflection-input" id="reflectionNote" placeholder="一句覺察：例如，這筆錢是為了讓自己休息一下。"></textarea>
+      <div class="reflection-helper">選填，一句話就好</div>
+
+      <button class="submit-btn" id="saveBtn">記　下　這　一　筆</button>
+    </div>
+
+    <div class="card journal-card">
+      <div class="card-title">今日能量小日記</div>
+      <div class="journal-today" id="journalToday">—</div>
+      <div class="journal-helper">今天想留下一句話嗎？不用寫很多，一句也很好。</div>
+
+      <div class="prompt-chips">
+        <button class="prompt-chip" data-prompt="今天最滋養我的一筆支出是……">今天最滋養我的一筆支出是……</button>
+        <button class="prompt-chip" data-prompt="今天我花錢時的主要狀態是……">今天我花錢時的主要狀態是……</button>
+        <button class="prompt-chip" data-prompt="今天我想感謝自己的是……">今天我想感謝自己的是……</button>
+      </div>
+
+      <textarea class="journal-textarea" id="journalContent" placeholder="留一句給今天的自己，選填即可。"></textarea>
+      <div class="journal-meta" id="journalMeta"></div>
+
+      <button class="submit-btn" id="saveJournalBtn">儲　存　今　日　小　記</button>
+    </div>
+
+    <div class="card">
+      <div class="card-title">日記紀錄</div>
+      <div id="pastJournalList"></div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">最近的流動</div>
+      <div id="txnList"></div>
+    </div>
+  </section>
+
+  <!-- ====== FLOW ====== -->
+  <section class="panel" id="panel-flow">
+
+    <div class="card">
+      <div class="card-title">本月財氣</div>
+      <div class="summary-row">
+        <div class="summary-cell">
+          <div class="summary-cell-label">Income</div>
+          <div class="summary-cell-value pos" id="sumIncome">—</div>
+        </div>
+        <div class="summary-cell">
+          <div class="summary-cell-label">Expense</div>
+          <div class="summary-cell-value neg" id="sumExpense">—</div>
+        </div>
+        <div class="summary-cell">
+          <div class="summary-cell-label">Net Flow</div>
+          <div class="summary-cell-value" id="sumNet">—</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card score-card">
+      <div class="card-title">金錢能量分數</div>
+      <div class="score-value" id="energyScore">+0</div>
+      <div class="score-label" id="scoreLabel">尚未開始記錄</div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">支出的能量光譜</div>
+      <div class="energy-bar" id="energyBar"></div>
+      <div class="legend" id="legend"></div>
+      <div class="insight" id="insight">當你開始記錄，這裡會浮現你的金錢能量圖譜。</div>
+    </div>
+  </section>
+
+  <!-- ====== ATLAS ====== -->
+  <section class="panel" id="panel-atlas">
+    <div class="card">
+      <div class="card-title">能量圖鑑</div>
+      <p style="font-size:13px; color:var(--ink-3); margin-bottom:18px; font-style:italic; font-family:'Cormorant Garamond','Noto Serif TC',serif; line-height:1.7;">
+        你的每一筆支出，都流向某種能量。觀察它們的比例，你會看見自己的人生重心在哪裡。
+      </p>
+      <div class="element-grid" id="elementGrid"></div>
+    </div>
+
+    <div class="danger-zone">
+      <button class="reset-btn" id="resetBtn">清空所有紀錄</button>
+    </div>
+  <!-- ====== REVIEW ====== -->
+  <section class="panel" id="panel-review">
+
+    <div class="month-nav">
+      <button class="month-nav-btn" id="prevMonthBtn" aria-label="上個月">‹</button>
+      <div class="month-nav-label" id="reviewMonthLabel">—</div>
+      <button class="month-nav-btn" id="nextMonthBtn" aria-label="下個月">›</button>
+    </div>
+
+    <div id="reviewContent"></div>
+
+  </section>
+
+</div>
+
+<div class="toast" id="toast">已記下</div>
+
+<script>
+/* ============================================================
+   能量帳  ·  Money Energy Ledger
+   ============================================================ */
+
+// ---- Data model ----
+const EXPENSE_CATS = ['食','衣','住','行','學習','健康','娛樂','人際','信仰／修行','工具／創作','衝動消費'];
+const INCOME_CATS  = ['薪資','接案','投資','禮金','退款','其他'];
+
+// energy tag → element mapping
+const ENERGY_TAGS = [
+  { key: '滋養', el: 'water', desc: '讓身心變好' },
+  { key: '修復', el: 'water', desc: '疲累後的恢復' },
+  { key: '必要', el: 'earth', desc: '生活必需' },
+  { key: '成長', el: 'wood',  desc: '提升能力' },
+  { key: '創造', el: 'fire',  desc: '產生未來價值' },
+  { key: '連結', el: 'fire',  desc: '與人情感交流' },
+  { key: '布施', el: 'metal', desc: '助人、供養' },
+  { key: '消耗', el: 'mist',  desc: '花完更空虛' },
+  { key: '補償', el: 'mist',  desc: '壓力下的犒賞' },
+];
+
+const MOODS = ['平靜','開心','疲累','焦慮','衝動','空虛','有成就感','感恩','壓力大','想犒賞自己'];
+
+const ELEMENTS = [
+  { key: 'water', glyph: '水', name: '滋養之水', desc: 'Nourishment & restoration' },
+  { key: 'wood',  glyph: '木', name: '成長之木', desc: 'Growth & learning' },
+  { key: 'fire',  glyph: '火', name: '創造之火', desc: 'Creation & connection' },
+  { key: 'earth', glyph: '土', name: '安定之土', desc: 'Stability & necessity' },
+  { key: 'metal', glyph: '金', name: '流通之金', desc: 'Flow & generosity' },
+  { key: 'mist',  glyph: '霧', name: '消耗之霧', desc: 'Drain & compensation' },
+];
+
+const ELEMENT_COLORS = {
+  water:'#3f6e7e', wood:'#6b8c52', fire:'#c45a3c',
+  earth:'#b48642', metal:'#8a7350', mist:'#9a958b'
+};
+
+// ---- State ----
+let state = {
+  type: 'expense',
+  category: null,
+  energy: null,
+  mood: null,
+  txns: [],
+  reviewedMonths: [],   // ["2025-11", ...]
+  viewYear: null,       // currently viewed month in review tab
+  viewMonth: null,
+  journals: [],         // daily energy journals
+  activePrompt: null,   // which prompt was clicked for today's journal
+  editingJournalId: null,
+  showAllJournals: false
+};
+
+// ---- Storage ----
+async function loadTxns() {
+  try {
+    const r = await window.storage.get('energy_ledger_txns');
+    state.txns = r ? JSON.parse(r.value) : [];
+  } catch (e) {
+    state.txns = [];
+  }
+}
+async function saveTxns() {
+  try {
+    await window.storage.set('energy_ledger_txns', JSON.stringify(state.txns));
+  } catch (e) {
+    console.error('save failed', e);
+  }
+}
+
+async function loadReviewed() {
+  try {
+    const r = await window.storage.get('energy_ledger_reviewed');
+    state.reviewedMonths = r ? JSON.parse(r.value) : [];
+  } catch (e) {
+    state.reviewedMonths = [];
+  }
+}
+async function saveReviewed() {
+  try {
+    await window.storage.set('energy_ledger_reviewed', JSON.stringify(state.reviewedMonths));
+  } catch (e) {
+    console.error('save reviewed failed', e);
+  }
+}
+
+async function loadJournals() {
+  try {
+    const r = await window.storage.get('energy_ledger_journals');
+    state.journals = r ? JSON.parse(r.value) : [];
+  } catch (e) {
+    state.journals = [];
+  }
+}
+async function saveJournals() {
+  try {
+    await window.storage.set('energy_ledger_journals', JSON.stringify(state.journals));
+  } catch (e) {
+    console.error('save journals failed', e);
+  }
+}
+
+// ---- Helpers ----
+function fmtMoney(n) {
+  return new Intl.NumberFormat('en-US', { maximumFractionDigits: 0 }).format(Math.abs(n));
+}
+function thisMonthTxns() {
+  const now = new Date();
+  const y = now.getFullYear(), m = now.getMonth();
+  return state.txns.filter(t => {
+    const d = new Date(t.date);
+    return d.getFullYear() === y && d.getMonth() === m;
+  });
+}
+function elementOf(energyKey) {
+  const tag = ENERGY_TAGS.find(t => t.key === energyKey);
+  return tag ? tag.el : 'mist';
+}
+
+// ---- Journal helpers ----
+function todayDateKey() {
+  const d = new Date();
+  return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+}
+function getJournalForDate(dateKey) {
+  return state.journals.find(j => j.date === dateKey);
+}
+
+function formatToday() {
+  const d = new Date();
+  const y = d.getFullYear();
+  const m = d.getMonth() + 1;
+  const day = d.getDate();
+  const dows = ['週日','週一','週二','週三','週四','週五','週六'];
+  return {
+    iso: `${y} . ${String(m).padStart(2,'0')} . ${String(day).padStart(2,'0')}`,
+    cn: `${m} 月 ${day} 日`,
+    dow: dows[d.getDay()]
+  };
+}
+
+function renderTodayDate() {
+  const t = formatToday();
+  const stampNum = document.getElementById('todayStampNum');
+  const stampDay = document.getElementById('todayStampDay');
+  const journalToday = document.getElementById('journalToday');
+  if (stampNum) stampNum.textContent = t.iso;
+  if (stampDay) stampDay.textContent = t.dow;
+  if (journalToday) journalToday.textContent = `今天是 ${t.cn}，${t.dow}`;
+}
+
+function renderJournal() {
+  const today = todayDateKey();
+  const existing = getJournalForDate(today);
+  const textarea = document.getElementById('journalContent');
+  const meta = document.getElementById('journalMeta');
+  const btn = document.getElementById('saveJournalBtn');
+
+  if (existing) {
+    // only fill from storage if user hasn't started typing different content
+    if (!textarea.dataset.touched) {
+      textarea.value = existing.content;
+    }
+    btn.textContent = '更　新　今　日　小　記';
+    const u = new Date(existing.updatedAt);
+    const t = `${String(u.getHours()).padStart(2,'0')}:${String(u.getMinutes()).padStart(2,'0')}`;
+    meta.textContent = `已於 ${t} 留下記錄${existing.prompt ? '．來自提示：' + existing.prompt : ''}`;
+  } else {
+    btn.textContent = '儲　存　今　日　小　記';
+    meta.textContent = '';
+  }
+}
+
+async function handleJournalSave() {
+  const textarea = document.getElementById('journalContent');
+  const content = textarea.value.trim();
+  const today = todayDateKey();
+
+  if (!content) {
+    showToast('現在不寫也沒關係，想記錄時再回來');
+    return;
+  }
+
+  const existing = getJournalForDate(today);
+  const now = new Date().toISOString();
+
+  if (existing) {
+    existing.content = content;
+    existing.updatedAt = now;
+    if (state.activePrompt) existing.prompt = state.activePrompt;
+  } else {
+    state.journals.push({
+      id: 'journal_' + Date.now() + '_' + Math.random().toString(36).slice(2,7),
+      date: today,
+      content: content,
+      prompt: state.activePrompt || null,
+      createdAt: now,
+      updatedAt: now
+    });
+  }
+
+  state.activePrompt = null;
+  textarea.dataset.touched = '';
+  await saveJournals();
+  renderJournal();
+  renderPastJournals();
+  showToast('已為今天留下一段小小的能量記錄');
+}
+
+// ---- Past journals: list, edit, delete ----
+function renderPastJournals() {
+  const today = todayDateKey();
+  const past = state.journals
+    .filter(j => j.date !== today)
+    .sort((a, b) => b.date.localeCompare(a.date));
+
+  const wrap = document.getElementById('pastJournalList');
+  if (!past.length) {
+    wrap.innerHTML = '<div class="empty">還沒有過往的紀錄。<br><span style="color:var(--ink-4); font-size:12px;">每天的小日記儲存後，會在這裡逐漸累積。</span></div>';
+    return;
+  }
+
+  const limit = 5;
+  const showAll = state.showAllJournals;
+  const visible = showAll ? past : past.slice(0, limit);
+  const hasMore = !showAll && past.length > limit;
+  const canCollapse = showAll && past.length > limit;
+
+  const entries = visible.map(j => renderJournalEntryEditable(j)).join('');
+  let extra = '';
+  if (hasMore) {
+    extra = `<button class="show-all-btn" data-action="show-all">顯示全部 ${past.length} 則</button>`;
+  } else if (canCollapse) {
+    extra = `<button class="show-all-btn" data-action="show-less">收　合</button>`;
+  }
+
+  wrap.innerHTML = `<div class="journal-entries">${entries}</div>${extra}`;
+}
+
+function renderJournalEntryEditable(j) {
+  const isEditing = state.editingJournalId === j.id;
+  const dateLabel = j.date.replace(/-/g, ' / ');
+  if (isEditing) {
+    return `
+      <div class="journal-entry editing">
+        <div class="journal-entry-date">${dateLabel}</div>
+        <textarea class="journal-edit-area" data-id="${j.id}">${escapeHtml(j.content)}</textarea>
+        ${j.prompt ? `<div class="journal-entry-prompt">來自提示：${escapeHtml(j.prompt)}</div>` : ''}
+        <div class="journal-entry-actions">
+          <button class="journal-action-btn primary" data-action="save" data-id="${j.id}">儲存</button>
+          <button class="journal-action-btn" data-action="cancel">取消</button>
+        </div>
+      </div>`;
+  }
+  return `
+    <div class="journal-entry">
+      <div class="journal-entry-date">${dateLabel}</div>
+      <div class="journal-entry-content">${escapeHtml(j.content)}</div>
+      ${j.prompt ? `<div class="journal-entry-prompt">來自提示：${escapeHtml(j.prompt)}</div>` : ''}
+      <div class="journal-entry-actions">
+        <button class="journal-action-btn" data-action="edit" data-id="${j.id}">編輯</button>
+        <button class="journal-action-btn danger" data-action="delete" data-id="${j.id}">刪除</button>
+      </div>
+    </div>`;
+}
+
+function startEditJournal(id) {
+  state.editingJournalId = id;
+  renderPastJournals();
+  setTimeout(() => {
+    const ta = document.querySelector(`.journal-edit-area[data-id="${id}"]`);
+    if (ta) {
+      ta.focus();
+      ta.setSelectionRange(ta.value.length, ta.value.length);
+    }
+  }, 0);
+}
+
+async function saveEditJournal(id) {
+  const ta = document.querySelector(`.journal-edit-area[data-id="${id}"]`);
+  if (!ta) return;
+  const newContent = ta.value.trim();
+  if (!newContent) {
+    showToast('內容不能為空，可以選擇取消或刪除');
+    return;
+  }
+  const j = state.journals.find(x => x.id === id);
+  if (j) {
+    j.content = newContent;
+    j.updatedAt = new Date().toISOString();
+    await saveJournals();
+  }
+  state.editingJournalId = null;
+  renderPastJournals();
+  showToast('已更新這則小記錄');
+}
+
+function cancelEditJournal() {
+  state.editingJournalId = null;
+  renderPastJournals();
+}
+
+async function deleteJournal(id) {
+  if (!confirm('確定要刪除這則小記錄嗎？')) return;
+  state.journals = state.journals.filter(j => j.id !== id);
+  await saveJournals();
+  if (state.editingJournalId === id) state.editingJournalId = null;
+  renderPastJournals();
+  showToast('已刪除這則小記錄');
+}
+
+// ---- Render: chips ----
+function renderCategoryChips() {
+  const wrap = document.getElementById('categoryChips');
+  const list = state.type === 'expense' ? EXPENSE_CATS : INCOME_CATS;
+  wrap.innerHTML = '';
+  state.category = null;
+  list.forEach(c => {
+    const b = document.createElement('button');
+    b.className = 'chip';
+    b.textContent = c;
+    b.onclick = () => {
+      state.category = c;
+      [...wrap.children].forEach(el => el.classList.remove('active'));
+      b.classList.add('active');
+    };
+    wrap.appendChild(b);
+  });
+}
+
+function renderEnergyChips() {
+  const wrap = document.getElementById('energyChips');
+  wrap.innerHTML = '';
+  state.energy = null;
+  ENERGY_TAGS.forEach(t => {
+    const b = document.createElement('button');
+    b.className = 'chip';
+    b.dataset.element = t.el;
+    b.textContent = t.key;
+    b.title = t.desc;
+    b.onclick = () => {
+      state.energy = t.key;
+      [...wrap.children].forEach(el => el.classList.remove('active'));
+      b.classList.add('active');
+    };
+    wrap.appendChild(b);
+  });
+}
+
+function renderMoodChips() {
+  const wrap = document.getElementById('moodChips');
+  wrap.innerHTML = '';
+  state.mood = null;
+  MOODS.forEach(m => {
+    const b = document.createElement('button');
+    b.className = 'chip';
+    b.textContent = m;
+    b.onclick = () => {
+      state.mood = m;
+      [...wrap.children].forEach(el => el.classList.remove('active'));
+      b.classList.add('active');
+    };
+    wrap.appendChild(b);
+  });
+}
+
+// ---- Render: transaction list ----
+function renderTxnList() {
+  const wrap = document.getElementById('txnList');
+  if (!state.txns.length) {
+    wrap.innerHTML = '<div class="empty">還沒有紀錄。從第一筆開始，看見錢的流向。</div>';
+    return;
+  }
+  const recent = [...state.txns].sort((a,b) => new Date(b.date) - new Date(a.date)).slice(0, 12);
+  wrap.innerHTML = recent.map(t => {
+    const el = elementOf(t.energy);
+    const glyph = ELEMENTS.find(e => e.key === el).glyph;
+    const sign = t.type === 'income' ? '+' : '−';
+    const cls  = t.type === 'income' ? 'income' : 'expense';
+    const tag  = `${t.category || '—'} · ${t.energy || '—'}${t.mood ? ' · ' + t.mood : ''}`;
+    const desc = t.note || (t.type === 'income' ? '收入' : '支出');
+    const reflection = t.reflectionNote
+      ? `<div class="txn-reflection">${escapeHtml(t.reflectionNote)}</div>`
+      : '';
+    return `
+      <div class="txn">
+        <div class="txn-glyph" style="background:${ELEMENT_COLORS[el]}">${glyph}</div>
+        <div class="txn-info">
+          <div class="txn-tag">${tag}</div>
+          <div class="txn-desc">${escapeHtml(desc)}</div>
+        </div>
+        <div class="txn-amount ${cls}">${sign} ${fmtMoney(t.amount)}</div>
+        ${reflection}
+      </div>
+    `;
+  }).join('');
+}
+
+function escapeHtml(s) {
+  return String(s).replace(/[&<>"']/g, c => ({
+    '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'
+  }[c]));
+}
+
+// ---- Render: flow panel ----
+function renderFlow() {
+  const ms = thisMonthTxns();
+  const inc = ms.filter(t => t.type === 'income').reduce((s,t) => s + t.amount, 0);
+  const exp = ms.filter(t => t.type === 'expense').reduce((s,t) => s + t.amount, 0);
+  const net = inc - exp;
+
+  document.getElementById('sumIncome').textContent  = '$' + fmtMoney(inc);
+  document.getElementById('sumExpense').textContent = '$' + fmtMoney(exp);
+  const netEl = document.getElementById('sumNet');
+  netEl.textContent = (net >= 0 ? '+$' : '−$') + fmtMoney(net);
+  netEl.className = 'summary-cell-value ' + (net >= 0 ? 'pos' : 'neg');
+
+  // Energy bar (expenses only, by element)
+  const expenses = ms.filter(t => t.type === 'expense');
+  const byEl = {};
+  ELEMENTS.forEach(e => byEl[e.key] = 0);
+  expenses.forEach(t => {
+    byEl[elementOf(t.energy)] += t.amount;
+  });
+  const total = Object.values(byEl).reduce((a,b) => a+b, 0);
+
+  const bar = document.getElementById('energyBar');
+  const legend = document.getElementById('legend');
+  if (total === 0) {
+    bar.innerHTML = '';
+    legend.innerHTML = '<span style="color:var(--ink-3); font-style:italic;">本月尚無支出紀錄</span>';
+  } else {
+    bar.innerHTML = ELEMENTS.map(e => {
+      const v = byEl[e.key];
+      if (v === 0) return '';
+      const pct = (v / total * 100);
+      return `<div class="energy-bar-seg" style="width:${pct}%; background:${ELEMENT_COLORS[e.key]}">${pct >= 12 ? `<span>${e.glyph}</span>` : ''}</div>`;
+    }).join('');
+    legend.innerHTML = ELEMENTS.filter(e => byEl[e.key] > 0).map(e => `
+      <div class="legend-item">
+        <div class="legend-dot" style="background:${ELEMENT_COLORS[e.key]}"></div>
+        <span>${e.glyph} ${e.name.slice(2)} ${(byEl[e.key]/total*100).toFixed(0)}%</span>
+      </div>
+    `).join('');
+  }
+
+  // Energy score: nourish/grow/create/give = +, drain/compensate = -, necessary = 0
+  let score = 0;
+  expenses.forEach(t => {
+    const el = elementOf(t.energy);
+    const weight = t.amount / 1000; // every $1000 = 1 pt
+    if (['water','wood','fire','metal'].includes(el)) score += weight;
+    else if (el === 'mist') score -= weight * 1.2;
+  });
+  const scoreInt = Math.round(score);
+  const sc = document.getElementById('energyScore');
+  sc.textContent = (scoreInt >= 0 ? '+' : '') + scoreInt;
+  document.getElementById('scoreLabel').textContent =
+    expenses.length === 0 ? '尚未開始記錄' :
+    scoreInt >= 30 ? '能量飽滿，方向清明' :
+    scoreInt >= 10 ? '穩定累積中' :
+    scoreInt >= 0  ? '平衡之中' :
+    scoreInt >= -15 ? '需要留意流失方向' :
+                      '能量正在外漏，停下來看看';
+
+  // Insight
+  const ins = generateInsight(expenses, byEl, total);
+  document.getElementById('insight').textContent = ins;
+}
+
+function generateInsight(expenses, byEl, total) {
+  if (!expenses.length) return '當你開始記錄，這裡會浮現你的金錢能量圖譜。';
+
+  const sorted = Object.entries(byEl).sort((a,b) => b[1]-a[1]);
+  const topEl = sorted[0][0];
+  const topName = ELEMENTS.find(e => e.key === topEl).name;
+  const mistAmt = byEl.mist || 0;
+  const mistPct = total ? (mistAmt / total * 100) : 0;
+  const growAmt = (byEl.wood || 0) + (byEl.fire || 0);
+  const nourishAmt = byEl.water || 0;
+
+  // Mood pattern
+  const moodCount = {};
+  expenses.forEach(t => { if (t.mood) moodCount[t.mood] = (moodCount[t.mood]||0) + 1; });
+  const topMood = Object.entries(moodCount).sort((a,b) => b[1]-a[1])[0];
+
+  if (mistPct >= 30) {
+    return `這個月有 ${mistPct.toFixed(0)}% 的支出落在「消耗之霧」。也許不是錢的問題，而是身體或情緒在提醒你需要真正的休息，而不只是購物。`;
+  }
+  if (nourishAmt > 0 && nourishAmt / total >= 0.25) {
+    return `你這個月把不少能量交給了「滋養之水」——好好吃飯、好好休息。這是一種愛自己的記錄。`;
+  }
+  if (growAmt / total >= 0.3) {
+    return `「成長之木」與「創造之火」占了你支出的 ${(growAmt/total*100).toFixed(0)}%。你正在為未來的自己投資，這份能量會回到你身上。`;
+  }
+  if (topMood && (topMood[0] === '焦慮' || topMood[0] === '疲累' || topMood[0] === '想犒賞自己')) {
+    return `這個月你最常在「${topMood[0]}」時花錢。觀察一下，這些消費讓你真的好起來了，還是只是延後了感受？`;
+  }
+  return `這個月，你的錢主要流向「${topName}」。沒有對錯——只是一面鏡子，看看這是不是你想要的方向。`;
+}
+
+// ---- Render: atlas ----
+function renderAtlas() {
+  const wrap = document.getElementById('elementGrid');
+  const ms = thisMonthTxns().filter(t => t.type === 'expense');
+  const byEl = {};
+  ELEMENTS.forEach(e => byEl[e.key] = 0);
+  ms.forEach(t => byEl[elementOf(t.energy)] += t.amount);
+  const total = Object.values(byEl).reduce((a,b) => a+b, 0) || 1;
+
+  wrap.innerHTML = ELEMENTS.map(e => {
+    const v = byEl[e.key];
+    const pct = (v / total * 100).toFixed(0);
+    return `
+      <div class="element-card" data-el="${e.key}">
+        <div class="element-glyph" style="color:${ELEMENT_COLORS[e.key]}">${e.glyph}</div>
+        <div class="element-name">${e.name}</div>
+        <div class="element-desc">${e.desc}</div>
+        <div class="element-amount">$${fmtMoney(v)}</div>
+        <div class="element-pct">${pct}% of expenses</div>
+      </div>
+    `;
+  }).join('');
+}
+
+// ============================================================
+// MONTHLY REVIEW
+// ============================================================
+
+function ymKey(y, m) {
+  return `${y}-${String(m+1).padStart(2,'0')}`;
+}
+
+function isLastDayOfMonth(date) {
+  const t = new Date(date);
+  t.setDate(t.getDate() + 1);
+  return t.getMonth() !== date.getMonth();
+}
+
+function monthHasData(y, m) {
+  return state.txns.some(t => {
+    const d = new Date(t.date);
+    return d.getFullYear() === y && d.getMonth() === m;
+  });
+}
+
+function getMonthsWithData() {
+  const set = new Set();
+  state.txns.forEach(t => {
+    const d = new Date(t.date);
+    set.add(`${d.getFullYear()}-${d.getMonth()}`);
+  });
+  return [...set].map(s => {
+    const [y, m] = s.split('-').map(Number);
+    return { y, m };
+  }).sort((a, b) => (a.y - b.y) || (a.m - b.m));
+}
+
+// Decide which month to default to, and whether tab badge should show.
+function resolveReviewDefault() {
+  const today = new Date();
+  const y = today.getFullYear(), m = today.getMonth();
+  const thisKey = ymKey(y, m);
+
+  // Last day of current month → focus this month (badge if not yet reviewed)
+  if (isLastDayOfMonth(today) && monthHasData(y, m)) {
+    return {
+      y, m,
+      badge: !state.reviewedMonths.includes(thisKey)
+    };
+  }
+
+  // Within first 7 days of new month → focus last month (if has data & not reviewed)
+  if (today.getDate() <= 7) {
+    const last = new Date(y, m - 1, 1);
+    const ly = last.getFullYear(), lm = last.getMonth();
+    const lastKey = ymKey(ly, lm);
+    if (monthHasData(ly, lm)) {
+      return {
+        y: ly, m: lm,
+        badge: !state.reviewedMonths.includes(lastKey)
+      };
+    }
+  }
+
+  // Otherwise default to current month, no badge
+  return { y, m, badge: false };
+}
+
+// Compute the report for a given month.
+function computeReport(y, m) {
+  const monthTxns = state.txns.filter(t => {
+    const d = new Date(t.date);
+    return d.getFullYear() === y && d.getMonth() === m;
+  });
+
+  if (!monthTxns.length) return null;
+
+  const income = monthTxns.filter(t => t.type === 'income').reduce((s,t) => s + t.amount, 0);
+  const expenses = monthTxns.filter(t => t.type === 'expense');
+  const expenseTotal = expenses.reduce((s,t) => s + t.amount, 0);
+
+  // By element
+  const byEl = { water:0, wood:0, fire:0, earth:0, metal:0, mist:0 };
+  expenses.forEach(t => byEl[elementOf(t.energy)] += t.amount);
+
+  // By category
+  const byCat = {};
+  expenses.forEach(t => {
+    byCat[t.category] = (byCat[t.category] || 0) + t.amount;
+  });
+  const topCats = Object.entries(byCat).sort((a,b) => b[1] - a[1]).slice(0, 3);
+
+  // Top nourishing transactions (water/wood/fire/metal)
+  const nourishEls = ['water','wood','fire','metal'];
+  const nourishing = expenses
+    .filter(t => nourishEls.includes(elementOf(t.energy)))
+    .sort((a,b) => b.amount - a.amount)
+    .slice(0, 3);
+
+  // Draining (mist)
+  const draining = expenses.filter(t => elementOf(t.energy) === 'mist');
+  const drainingTotal = draining.reduce((s,t) => s + t.amount, 0);
+
+  // Top mist transactions for display
+  const drainingTop = [...draining].sort((a,b) => b.amount - a.amount).slice(0, 5);
+
+  // Mood pattern within mist
+  const mistMoodCount = {};
+  draining.forEach(t => {
+    if (t.mood) mistMoodCount[t.mood] = (mistMoodCount[t.mood] || 0) + 1;
+  });
+  const topMistMood = Object.entries(mistMoodCount).sort((a,b) => b[1] - a[1])[0];
+
+  // Day-of-week pattern for mist
+  const dowAmount = [0,0,0,0,0,0,0];
+  draining.forEach(t => {
+    const d = new Date(t.date).getDay();
+    dowAmount[d] += t.amount;
+  });
+  let topDow = -1, topDowAmt = 0;
+  for (let i = 0; i < 7; i++) {
+    if (dowAmount[i] > topDowAmt) { topDowAmt = dowAmount[i]; topDow = i; }
+  }
+
+  // Energy score
+  let score = 0;
+  expenses.forEach(t => {
+    const el = elementOf(t.energy);
+    const w = t.amount / 1000;
+    if (nourishEls.includes(el)) score += w;
+    else if (el === 'mist') score -= w * 1.2;
+  });
+
+  return {
+    income, expenseTotal, net: income - expenseTotal,
+    byEl, topCats, nourishing, draining: drainingTop, drainingTotal,
+    topMistMood, topDow, topDowAmt,
+    score: Math.round(score),
+    txnCount: monthTxns.length,
+    expenseCount: expenses.length
+  };
+}
+
+function reportPoetic(report) {
+  const t = report.expenseTotal || 1;
+  const water = report.byEl.water / t;
+  const wood  = report.byEl.wood / t;
+  const fire  = report.byEl.fire / t;
+  const earth = report.byEl.earth / t;
+  const metal = report.byEl.metal / t;
+  const mist  = report.byEl.mist / t;
+
+  if (mist >= 0.3) {
+    return {
+      headline: '霧氣稍重的一個月',
+      poem: '消耗與補償占了不少。\n也許你的身心，比錢包更需要關照。'
+    };
+  }
+  if (water >= 0.3) {
+    return {
+      headline: '滋養之水流動的月份',
+      poem: '你把錢花在好好吃飯、好好休息——\n這是一種愛自己的記錄。'
+    };
+  }
+  if ((wood + fire) >= 0.4) {
+    return {
+      headline: '為未來播種的月份',
+      poem: '木的成長與火的創造，\n你正在把錢化為未來自己會感謝的事。'
+    };
+  }
+  if (earth >= 0.45) {
+    return {
+      headline: '穩穩落在生活根基上',
+      poem: '生活的必要被照顧得很好。\n安定，本身就是一種能量。'
+    };
+  }
+  if (metal >= 0.2) {
+    return {
+      headline: '能量在流通與給予中循環',
+      poem: '你的金錢有出有進，\n這是一種帶著呼吸的關係。'
+    };
+  }
+
+  // Mixed
+  const ranked = [
+    ['water', water], ['wood', wood], ['fire', fire],
+    ['earth', earth], ['metal', metal], ['mist', mist]
+  ].sort((a,b) => b[1] - a[1]);
+  const a = ELEMENTS.find(e => e.key === ranked[0][0]).glyph;
+  const b = ELEMENTS.find(e => e.key === ranked[1][0]).glyph;
+  return {
+    headline: '能量在多個方向流動',
+    poem: `主軸是「${a}」與「${b}」——\n沒有哪個方向是錯的，這只是一面鏡子。`
+  };
+}
+
+function reportPrompts(report) {
+  const prompts = [];
+  const t = report.expenseTotal || 1;
+  const mistPct = report.byEl.mist / t;
+  const nourishPct = (report.byEl.water + report.byEl.wood) / t;
+
+  if (mistPct >= 0.25 && report.topMistMood) {
+    prompts.push(`你的「消耗型支出」最常在「${report.topMistMood[0]}」時發生。下個月，當這個感受出現，能不能先暫停 5 分鐘，問自己：我真的需要這個，還是需要被安撫？`);
+  }
+  if (report.topDow !== -1 && report.drainingTotal > 0) {
+    const days = ['日','一','二','三','四','五','六'];
+    prompts.push(`補償消費集中在週${days[report.topDow]}（NT$${fmtMoney(report.topDowAmt)}）。那天，能不能為自己安排一件「真正的休息」，而不是「事後的犒賞」？`);
+  }
+  if (nourishPct < 0.15 && report.expenseCount > 0) {
+    prompts.push('這個月「滋養」與「成長」的支出比例偏低。下個月，能不能先為自己預留一筆「滋養基金」，再去處理其他？');
+  }
+  if (report.topCats.length) {
+    const [name, amt] = report.topCats[0];
+    const pct = Math.round(amt / t * 100);
+    if (pct >= 30) {
+      prompts.push(`「${name}」占了你支出的 ${pct}%。這是你想要的重心，還是慣性的累積？`);
+    }
+  }
+  prompts.push('如果下個月只能保留三類支出，你會留下哪三類？為什麼？');
+
+  return prompts.slice(0, 4);
+}
+
+function computeJournalStats(y, m) {
+  // Journals in this month
+  const monthJournals = state.journals.filter(j => {
+    const [jy, jm] = j.date.split('-').map(Number);
+    return jy === y && (jm - 1) === m;
+  });
+
+  // This month's transactions
+  const monthTxns = state.txns.filter(t => {
+    const d = new Date(t.date);
+    return d.getFullYear() === y && d.getMonth() === m;
+  });
+
+  const tagCount = {};
+  const moodCount = {};
+  let reflectionCount = 0;
+  monthTxns.forEach(t => {
+    if (t.energy) tagCount[t.energy] = (tagCount[t.energy] || 0) + 1;
+    if (t.mood)   moodCount[t.mood]  = (moodCount[t.mood]  || 0) + 1;
+    if (t.reflectionNote && t.reflectionNote.trim()) reflectionCount++;
+  });
+  const topTag  = Object.entries(tagCount).sort((a,b) => b[1] - a[1])[0];
+  const topMood = Object.entries(moodCount).sort((a,b) => b[1] - a[1])[0];
+
+  const recentJournals = [...monthJournals]
+    .sort((a, b) => b.date.localeCompare(a.date))
+    .slice(0, 3);
+
+  return {
+    journalDays: monthJournals.length,
+    topTag, topMood, reflectionCount, recentJournals
+  };
+}
+
+function renderReview() {
+  // initialize view month if needed
+  if (state.viewYear === null) {
+    const def = resolveReviewDefault();
+    state.viewYear = def.y;
+    state.viewMonth = def.m;
+  }
+
+  const y = state.viewYear, m = state.viewMonth;
+  const label = `${y} 年 ${String(m + 1).padStart(2, '0')} 月`;
+  document.getElementById('reviewMonthLabel').textContent = label;
+
+  // prev/next navigation bounds: allow any month from earliest data to today
+  const months = getMonthsWithData();
+  const today = new Date();
+  const todayY = today.getFullYear(), todayM = today.getMonth();
+  const earliest = months.length ? months[0] : { y: todayY, m: todayM };
+  const isAtEarliest = (y < earliest.y) || (y === earliest.y && m <= earliest.m);
+  const isAtLatest = (y > todayY) || (y === todayY && m >= todayM);
+  document.getElementById('prevMonthBtn').disabled = isAtEarliest;
+  document.getElementById('nextMonthBtn').disabled = isAtLatest;
+
+  const wrap = document.getElementById('reviewContent');
+  const r = computeReport(y, m);
+
+  if (!r) {
+    wrap.innerHTML = `
+      <div class="card">
+        <div class="empty-month">
+          這個月還沒有任何紀錄。<br>
+          <span style="color:var(--ink-4); font-size:13px;">先到「記錄」分頁開始留下第一筆。</span>
+        </div>
+      </div>`;
+    return;
+  }
+
+  const poem = reportPoetic(r);
+  const prompts = reportPrompts(r);
+  const j = computeJournalStats(y, m);
+  const hasJournalContent = j.journalDays > 0 || j.reflectionCount > 0;
+  const isReviewed = state.reviewedMonths.includes(ymKey(y, m));
+  const scoreLabel =
+    r.expenseCount === 0 ? '尚未開始記錄' :
+    r.score >= 30 ? '能量飽滿，方向清明' :
+    r.score >= 10 ? '穩定累積中' :
+    r.score >= 0  ? '平衡之中' :
+    r.score >= -15 ? '需要留意流失方向' :
+                     '能量正在外漏，停下來看看';
+
+  wrap.innerHTML = `
+    <div class="review-hero">
+      <div class="review-tagline">Monthly Review · ${label}</div>
+      <div class="review-headline">${poem.headline}</div>
+      <div class="review-poem">${poem.poem}</div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">這月的數字</div>
+      <div class="summary-row">
+        <div class="summary-cell">
+          <div class="summary-cell-label">Income</div>
+          <div class="summary-cell-value pos">$${fmtMoney(r.income)}</div>
+        </div>
+        <div class="summary-cell">
+          <div class="summary-cell-label">Expense</div>
+          <div class="summary-cell-value neg">$${fmtMoney(r.expenseTotal)}</div>
+        </div>
+        <div class="summary-cell">
+          <div class="summary-cell-label">Net</div>
+          <div class="summary-cell-value ${r.net >= 0 ? 'pos' : 'neg'}">${r.net >= 0 ? '+' : '−'}$${fmtMoney(r.net)}</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card score-card">
+      <div class="card-title">金錢能量分數</div>
+      <div class="score-value">${r.score >= 0 ? '+' : ''}${r.score}</div>
+      <div class="score-label">${scoreLabel}</div>
+    </div>
+
+    ${r.nourishing.length ? `
+    <div class="card">
+      <div class="card-title">真正滋養你的支出</div>
+      <div class="report-list">
+        ${r.nourishing.map(t => {
+          const el = elementOf(t.energy);
+          return `
+            <div class="report-item">
+              <div class="report-item-glyph" style="background:${ELEMENT_COLORS[el]}">
+                ${ELEMENTS.find(e => e.key === el).glyph}
+              </div>
+              <div class="report-item-info">
+                <div class="report-item-tag">${t.category} · ${t.energy}</div>
+                <div class="report-item-desc">${escapeHtml(t.note || '—')}</div>
+              </div>
+              <div class="report-item-amount">$${fmtMoney(t.amount)}</div>
+            </div>`;
+        }).join('')}
+      </div>
+    </div>` : ''}
+
+    ${r.draining.length ? `
+    <div class="card">
+      <div class="card-title">可能來自壓力的支出</div>
+      <div class="pattern-line">
+        本月「消耗 + 補償」型支出共 <strong>$${fmtMoney(r.drainingTotal)}</strong>
+        （占支出 <strong>${Math.round(r.drainingTotal / r.expenseTotal * 100)}%</strong>）。
+      </div>
+      ${r.topMistMood ? `
+      <div class="pattern-line">
+        最常在「<strong>${r.topMistMood[0]}</strong>」狀態下發生。
+      </div>` : ''}
+      ${r.topDow !== -1 ? `
+      <div class="pattern-line">
+        集中在<strong>週${['日','一','二','三','四','五','六'][r.topDow]}</strong>，當天合計 $${fmtMoney(r.topDowAmt)}。
+      </div>` : ''}
+      <div class="report-list" style="margin-top:8px;">
+        ${r.draining.map(t => `
+          <div class="report-item">
+            <div class="report-item-glyph" style="background:${ELEMENT_COLORS.mist}">霧</div>
+            <div class="report-item-info">
+              <div class="report-item-tag">${t.category} · ${t.energy}${t.mood ? ' · ' + t.mood : ''}</div>
+              <div class="report-item-desc">${escapeHtml(t.note || '—')}</div>
+            </div>
+            <div class="report-item-amount">$${fmtMoney(t.amount)}</div>
+          </div>
+        `).join('')}
+      </div>
+    </div>` : ''}
+
+    ${hasJournalContent ? `
+    <div class="card">
+      <div class="card-title">本月能量覺察</div>
+      <div class="journal-stat-row">
+        <div class="journal-stat">
+          <div class="journal-stat-label">寫日記天數</div>
+          <div class="journal-stat-value"><span class="num">${j.journalDays}</span>天</div>
+        </div>
+        <div class="journal-stat">
+          <div class="journal-stat-label">帶覺察的支出</div>
+          <div class="journal-stat-value"><span class="num">${j.reflectionCount}</span>筆</div>
+        </div>
+      </div>
+      ${(j.topTag || j.topMood) ? `
+      <div class="journal-stat-row">
+        ${j.topTag ? `
+        <div class="journal-stat">
+          <div class="journal-stat-label">最常的能量</div>
+          <div class="journal-stat-value">${j.topTag[0]}</div>
+        </div>` : ''}
+        ${j.topMood ? `
+        <div class="journal-stat">
+          <div class="journal-stat-label">最常的狀態</div>
+          <div class="journal-stat-value">${j.topMood[0]}</div>
+        </div>` : ''}
+      </div>` : ''}
+      ${j.recentJournals.length ? `
+        <div class="journal-section-title">最近的小日記</div>
+        <div class="journal-entries">
+          ${j.recentJournals.map(jr => `
+            <div class="journal-entry">
+              <div class="journal-entry-date">${jr.date.replace(/-/g, ' / ')}</div>
+              <div class="journal-entry-content">${escapeHtml(jr.content)}</div>
+              ${jr.prompt ? `<div class="journal-entry-prompt">來自提示：${escapeHtml(jr.prompt)}</div>` : ''}
+            </div>
+          `).join('')}
+        </div>` : ''}
+    </div>` : ''}
+
+    <div class="card">
+      <div class="card-title">下個月的提示</div>
+      <ol class="prompt-list">
+        ${prompts.map(p => `<li class="prompt-item">${p}</li>`).join('')}
+      </ol>
+    </div>
+
+    <button class="complete-btn ${isReviewed ? 'done' : ''}" id="completeReviewBtn">
+      ${isReviewed ? '✓　已　完　成　回　顧' : '完　成　這　月　回　顧'}
+    </button>
+  `;
+
+  if (!isReviewed) {
+    document.getElementById('completeReviewBtn').onclick = async () => {
+      const key = ymKey(y, m);
+      if (!state.reviewedMonths.includes(key)) {
+        state.reviewedMonths.push(key);
+        await saveReviewed();
+      }
+      updateTabBadge();
+      renderReview();
+      showToast('願下個月，能量更清明');
+    };
+  }
+}
+
+function updateTabBadge() {
+  const def = resolveReviewDefault();
+  document.getElementById('tabBadge').style.display = def.badge ? 'inline-block' : 'none';
+}
+async function handleSave() {
+  const amount = parseFloat(document.getElementById('amount').value);
+  if (!amount || amount <= 0) { showToast('請輸入金額'); return; }
+  if (!state.category) { showToast('請選擇類別'); return; }
+  if (!state.energy)   { showToast('請選擇能量屬性'); return; }
+
+  const txn = {
+    id: Date.now() + '_' + Math.random().toString(36).slice(2,7),
+    type: state.type,
+    amount: amount,
+    category: state.category,
+    energy: state.energy,
+    mood: state.mood,
+    note: document.getElementById('note').value.trim(),
+    reflectionNote: document.getElementById('reflectionNote').value.trim(),
+    date: new Date().toISOString()
+  };
+  state.txns.push(txn);
+  await saveTxns();
+
+  // reset form
+  document.getElementById('amount').value = '';
+  document.getElementById('note').value = '';
+  document.getElementById('reflectionNote').value = '';
+  state.category = null; state.energy = null; state.mood = null;
+  document.querySelectorAll('.chips .chip').forEach(c => c.classList.remove('active'));
+
+  renderTxnList();
+  renderFlow();
+  renderAtlas();
+  // reset review view month so it picks the right default next time
+  state.viewYear = null;
+  state.viewMonth = null;
+  updateTabBadge();
+  showToast('已記下這筆能量流動');
+}
+
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  clearTimeout(showToast._tm);
+  showToast._tm = setTimeout(() => t.classList.remove('show'), 2200);
+}
+
+// ---- Tabs ----
+document.querySelectorAll('.tab').forEach(tab => {
+  tab.onclick = () => {
+    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+    document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+    tab.classList.add('active');
+    document.getElementById('panel-' + tab.dataset.tab).classList.add('active');
+    if (tab.dataset.tab === 'flow')   renderFlow();
+    if (tab.dataset.tab === 'atlas')  renderAtlas();
+    if (tab.dataset.tab === 'review') renderReview();
+  };
+});
+
+// ---- Month navigation in review ----
+document.getElementById('prevMonthBtn').onclick = () => {
+  let y = state.viewYear, m = state.viewMonth - 1;
+  if (m < 0) { m = 11; y -= 1; }
+  state.viewYear = y; state.viewMonth = m;
+  renderReview();
+};
+document.getElementById('nextMonthBtn').onclick = () => {
+  let y = state.viewYear, m = state.viewMonth + 1;
+  if (m > 11) { m = 0; y += 1; }
+  state.viewYear = y; state.viewMonth = m;
+  renderReview();
+};
+
+// ---- Type toggle ----
+document.querySelectorAll('.type-toggle button').forEach(b => {
+  b.onclick = () => {
+    document.querySelectorAll('.type-toggle button').forEach(x => x.classList.remove('active'));
+    b.classList.add('active');
+    state.type = b.dataset.type;
+    renderCategoryChips();
+  };
+});
+
+// ---- Save button ----
+document.getElementById('saveBtn').onclick = handleSave;
+
+// ---- Journal save & prompts ----
+document.getElementById('saveJournalBtn').onclick = handleJournalSave;
+
+document.getElementById('journalContent').addEventListener('input', (e) => {
+  e.target.dataset.touched = '1';
+});
+
+document.querySelectorAll('.prompt-chip').forEach(btn => {
+  btn.onclick = () => {
+    const prompt = btn.dataset.prompt;
+    const ta = document.getElementById('journalContent');
+    const current = ta.value.trim();
+    if (current === '') {
+      ta.value = prompt + '\n';
+    } else {
+      // append on a new paragraph
+      ta.value = current + '\n\n' + prompt + '\n';
+    }
+    ta.dataset.touched = '1';
+    state.activePrompt = prompt;
+    ta.focus();
+    ta.setSelectionRange(ta.value.length, ta.value.length);
+  };
+});
+
+// ---- Past journal action delegation ----
+document.getElementById('pastJournalList').addEventListener('click', (e) => {
+  const btn = e.target.closest('[data-action]');
+  if (!btn) return;
+  const action = btn.dataset.action;
+  const id = btn.dataset.id;
+  if (action === 'edit')        startEditJournal(id);
+  else if (action === 'delete') deleteJournal(id);
+  else if (action === 'save')   saveEditJournal(id);
+  else if (action === 'cancel') cancelEditJournal();
+  else if (action === 'show-all')  { state.showAllJournals = true;  renderPastJournals(); }
+  else if (action === 'show-less') { state.showAllJournals = false; renderPastJournals(); }
+});
+
+// ---- Reset ----
+document.getElementById('resetBtn').onclick = async () => {
+  if (!confirm('確定要清空所有紀錄嗎？此動作無法復原。')) return;
+  state.txns = [];
+  state.reviewedMonths = [];
+  state.journals = [];
+  state.viewYear = null;
+  state.viewMonth = null;
+  state.editingJournalId = null;
+  state.showAllJournals = false;
+  await saveTxns();
+  await saveReviewed();
+  await saveJournals();
+  document.getElementById('journalContent').value = '';
+  document.getElementById('journalContent').dataset.touched = '';
+  renderTxnList(); renderFlow(); renderAtlas(); renderJournal(); renderPastJournals();
+  updateTabBadge();
+  showToast('已清空所有紀錄');
+};
+
+// ---- Init ----
+(async function init() {
+  await loadTxns();
+  await loadReviewed();
+  await loadJournals();
+  renderTodayDate();
+  renderCategoryChips();
+  renderEnergyChips();
+  renderMoodChips();
+  renderTxnList();
+  renderFlow();
+  renderAtlas();
+  renderJournal();
+  renderPastJournals();
+  updateTabBadge();
+})();
+</script>
+</body>
+</html>

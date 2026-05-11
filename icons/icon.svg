@@ -1,0 +1,37 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <!-- Background gradient: warm paper -->
+  <defs>
+    <radialGradient id="bg" cx="50%" cy="40%" r="70%">
+      <stop offset="0%" stop-color="#faf3e3"/>
+      <stop offset="60%" stop-color="#f3ece0"/>
+      <stop offset="100%" stop-color="#e8dcc1"/>
+    </radialGradient>
+    <linearGradient id="ink" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#3a2f24"/>
+      <stop offset="100%" stop-color="#2b251e"/>
+    </linearGradient>
+    <linearGradient id="gold" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#d4b079"/>
+      <stop offset="100%" stop-color="#b08642"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Card background -->
+  <rect width="512" height="512" rx="96" fill="url(#bg)"/>
+
+  <!-- Subtle gold halo -->
+  <circle cx="256" cy="256" r="180" fill="none" stroke="url(#gold)" stroke-width="2" opacity="0.35"/>
+  <circle cx="256" cy="256" r="155" fill="none" stroke="url(#gold)" stroke-width="1" opacity="0.2"/>
+
+  <!-- "能" character drawn as simple stylized strokes -->
+  <!-- We use the actual character with a serif font that's universally available -->
+  <text x="256" y="338"
+        text-anchor="middle"
+        font-family="'Noto Serif TC', 'Songti TC', 'PingFang TC', 'Hiragino Mincho ProN', serif"
+        font-size="320"
+        font-weight="500"
+        fill="url(#ink)">能</text>
+
+  <!-- Small gold accent dot bottom-right -->
+  <circle cx="395" cy="395" r="10" fill="url(#gold)"/>
+</svg>

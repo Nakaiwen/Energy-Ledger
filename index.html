@@ -2,11 +2,23 @@
 <html lang="zh-Hant">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title>能量帳 · Money Energy Ledger</title>
+
+<!-- PWA -->
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#f3ece0">
+<meta name="description" content="記錄金錢，也記錄你的生命流向。">
+<link rel="icon" type="image/svg+xml" href="icons/icon.svg">
+<link rel="apple-touch-icon" href="icons/icon-192.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="能量帳">
+<meta name="mobile-web-app-capable" content="yes">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@300;400;500;600;700&family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,300;1,400&display=swap" rel="stylesheet">
+<link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@300;400;500;600;700&family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,300;1,400&display=swap">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@300;400;500;600;700&family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,300;1,400&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
 <style>
   :root {
     --bg: #f3ece0;
@@ -546,6 +558,177 @@
     border-color: var(--fire);
     color: var(--fire);
   }
+
+  /* Data management */
+  .data-section {
+    margin-top: 6px;
+  }
+  .data-helper {
+    font-size: 12.5px;
+    color: var(--ink-3);
+    font-style: italic;
+    font-family: "Cormorant Garamond", "Noto Serif TC", serif;
+    line-height: 1.85;
+    margin-bottom: 16px;
+  }
+  .data-btn-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    margin-bottom: 12px;
+  }
+  .data-btn {
+    background: var(--bg-soft);
+    border: 1px solid var(--line-soft);
+    color: var(--ink);
+    padding: 12px 8px;
+    font-family: inherit;
+    font-size: 13px;
+    cursor: pointer;
+    border-radius: 3px;
+    transition: all .2s;
+    letter-spacing: 0.2em;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+  }
+  .data-btn:hover {
+    background: var(--ink);
+    color: var(--bg-card);
+    border-color: var(--ink);
+  }
+  .data-btn-icon {
+    font-family: "Cormorant Garamond", serif;
+    font-size: 18px;
+    color: var(--gold);
+    letter-spacing: 0;
+  }
+  .data-btn:hover .data-btn-icon { color: var(--gold-soft); }
+  .data-btn small {
+    font-size: 10.5px;
+    color: var(--ink-3);
+    letter-spacing: 0.1em;
+    font-style: italic;
+    font-family: "Cormorant Garamond", "Noto Serif TC", serif;
+  }
+  .data-btn:hover small { color: var(--gold-soft); }
+  #fileInput { display: none; }
+
+  /* Import preview modal */
+  .modal-backdrop {
+    position: fixed;
+    inset: 0;
+    background: rgba(43, 37, 30, 0.45);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 200;
+    padding: 24px;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity .25s;
+  }
+  .modal-backdrop.show {
+    opacity: 1;
+    pointer-events: auto;
+  }
+  .modal {
+    background: var(--bg-card);
+    border-radius: 6px;
+    padding: 26px 22px;
+    max-width: 420px;
+    width: 100%;
+    max-height: 86vh;
+    overflow-y: auto;
+    box-shadow: 0 20px 60px rgba(0,0,0,.25);
+    transform: translateY(8px);
+    transition: transform .3s;
+  }
+  .modal-backdrop.show .modal { transform: translateY(0); }
+  .modal-title {
+    font-size: 13px;
+    color: var(--ink-3);
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    font-family: "Cormorant Garamond", "Noto Serif TC", serif;
+    margin-bottom: 4px;
+  }
+  .modal-headline {
+    font-size: 18px;
+    color: var(--ink);
+    margin-bottom: 14px;
+    letter-spacing: 0.06em;
+  }
+  .modal-preview {
+    background: var(--bg-soft);
+    padding: 14px 16px;
+    border-radius: 3px;
+    margin-bottom: 16px;
+    font-size: 13px;
+    color: var(--ink-2);
+    line-height: 1.85;
+  }
+  .modal-preview-row {
+    display: flex;
+    justify-content: space-between;
+    border-bottom: 1px dashed var(--line-soft);
+    padding: 4px 0;
+  }
+  .modal-preview-row:last-child { border-bottom: none; }
+  .modal-preview-row .label { color: var(--ink-3); font-size: 12px; }
+  .modal-preview-row .val {
+    font-family: "Cormorant Garamond", "Noto Serif TC", serif;
+    color: var(--ink);
+  }
+  .modal-choice {
+    margin-bottom: 12px;
+  }
+  .modal-choice-btn {
+    width: 100%;
+    background: var(--bg-soft);
+    border: 1px solid var(--line-soft);
+    text-align: left;
+    padding: 14px 16px;
+    margin-bottom: 8px;
+    border-radius: 3px;
+    cursor: pointer;
+    font-family: inherit;
+    transition: all .2s;
+  }
+  .modal-choice-btn:hover {
+    border-color: var(--gold);
+    background: rgba(176,134,66,.05);
+  }
+  .modal-choice-btn strong {
+    display: block;
+    font-size: 14px;
+    color: var(--ink);
+    font-weight: 500;
+    margin-bottom: 4px;
+    letter-spacing: 0.05em;
+  }
+  .modal-choice-btn span {
+    display: block;
+    font-size: 12px;
+    color: var(--ink-3);
+    font-style: italic;
+    font-family: "Cormorant Garamond", "Noto Serif TC", serif;
+    line-height: 1.6;
+  }
+  .modal-cancel {
+    width: 100%;
+    background: none;
+    border: none;
+    color: var(--ink-3);
+    padding: 10px;
+    font-family: "Cormorant Garamond", "Noto Serif TC", serif;
+    font-size: 13px;
+    cursor: pointer;
+    letter-spacing: 0.2em;
+    font-style: italic;
+  }
+  .modal-cancel:hover { color: var(--ink); }
 
   /* ===== Review panel ===== */
   .month-nav {
@@ -1226,6 +1409,29 @@
       <div class="element-grid" id="elementGrid"></div>
     </div>
 
+    <div class="card">
+      <div class="card-title">資料管理</div>
+      <div class="data-section">
+        <div class="data-helper">
+          這些資料只存在你目前的瀏覽器裡。匯出後可以放進 iCloud Drive、Google Drive，
+          換裝置時再匯入回來，就能多裝置同步。
+        </div>
+        <div class="data-btn-row">
+          <button class="data-btn" id="exportBtn">
+            <span class="data-btn-icon">↓</span>
+            匯　出
+            <small>下載 JSON 備份</small>
+          </button>
+          <button class="data-btn" id="importBtn">
+            <span class="data-btn-icon">↑</span>
+            匯　入
+            <small>從 JSON 檔還原</small>
+          </button>
+        </div>
+        <input type="file" id="fileInput" accept="application/json,.json">
+      </div>
+    </div>
+
     <div class="danger-zone">
       <button class="reset-btn" id="resetBtn">清空所有紀錄</button>
     </div>
@@ -1242,6 +1448,29 @@
 
   </section>
 
+</div>
+
+<!-- Import preview modal -->
+<div class="modal-backdrop" id="importModal">
+  <div class="modal">
+    <div class="modal-title">Import · 匯入資料</div>
+    <div class="modal-headline" id="importHeadline">準備匯入資料</div>
+
+    <div class="modal-preview" id="importPreview"></div>
+
+    <div class="modal-choice">
+      <button class="modal-choice-btn" id="importMergeBtn">
+        <strong>合　併</strong>
+        <span>保留現有紀錄，加入匯入檔中沒有的部分。同一筆資料以較新的為準。</span>
+      </button>
+      <button class="modal-choice-btn" id="importReplaceBtn">
+        <strong>取　代</strong>
+        <span>清空目前所有資料，用匯入檔完全取代。此動作無法復原。</span>
+      </button>
+    </div>
+
+    <button class="modal-cancel" id="importCancelBtn">取消，先不匯入</button>
+  </div>
 </div>
 
 <div class="toast" id="toast">已記下</div>
@@ -1301,9 +1530,22 @@ let state = {
 };
 
 // ---- Storage ----
+// Use localStorage so it works as a real PWA / static site.
+// Wrapped in async functions to keep call sites unchanged.
+const STORAGE = {
+  async get(key) {
+    try { const v = localStorage.getItem(key); return v == null ? null : { value: v }; }
+    catch (e) { return null; }
+  },
+  async set(key, value) {
+    try { localStorage.setItem(key, value); return true; }
+    catch (e) { return false; }
+  }
+};
+
 async function loadTxns() {
   try {
-    const r = await window.storage.get('energy_ledger_txns');
+    const r = await STORAGE.get('energy_ledger_txns');
     state.txns = r ? JSON.parse(r.value) : [];
   } catch (e) {
     state.txns = [];
@@ -1311,7 +1553,7 @@ async function loadTxns() {
 }
 async function saveTxns() {
   try {
-    await window.storage.set('energy_ledger_txns', JSON.stringify(state.txns));
+    await STORAGE.set('energy_ledger_txns', JSON.stringify(state.txns));
   } catch (e) {
     console.error('save failed', e);
   }
@@ -1319,7 +1561,7 @@ async function saveTxns() {
 
 async function loadReviewed() {
   try {
-    const r = await window.storage.get('energy_ledger_reviewed');
+    const r = await STORAGE.get('energy_ledger_reviewed');
     state.reviewedMonths = r ? JSON.parse(r.value) : [];
   } catch (e) {
     state.reviewedMonths = [];
@@ -1327,7 +1569,7 @@ async function loadReviewed() {
 }
 async function saveReviewed() {
   try {
-    await window.storage.set('energy_ledger_reviewed', JSON.stringify(state.reviewedMonths));
+    await STORAGE.set('energy_ledger_reviewed', JSON.stringify(state.reviewedMonths));
   } catch (e) {
     console.error('save reviewed failed', e);
   }
@@ -1335,7 +1577,7 @@ async function saveReviewed() {
 
 async function loadJournals() {
   try {
-    const r = await window.storage.get('energy_ledger_journals');
+    const r = await STORAGE.get('energy_ledger_journals');
     state.journals = r ? JSON.parse(r.value) : [];
   } catch (e) {
     state.journals = [];
@@ -1343,7 +1585,7 @@ async function loadJournals() {
 }
 async function saveJournals() {
   try {
-    await window.storage.set('energy_ledger_journals', JSON.stringify(state.journals));
+    await STORAGE.set('energy_ledger_journals', JSON.stringify(state.journals));
   } catch (e) {
     console.error('save journals failed', e);
   }
@@ -2350,6 +2592,201 @@ document.getElementById('pastJournalList').addEventListener('click', (e) => {
 });
 
 // ---- Reset ----
+// ============================================================
+// EXPORT / IMPORT  ·  Data portability for multi-device sync
+// ============================================================
+
+const APP_VERSION = '1.0.0';
+
+function buildExportPayload() {
+  return {
+    app: 'energy-ledger',
+    appVersion: APP_VERSION,
+    exportedAt: new Date().toISOString(),
+    data: {
+      txns: state.txns,
+      journals: state.journals,
+      reviewedMonths: state.reviewedMonths
+    }
+  };
+}
+
+function downloadJSON(payload, filename) {
+  const blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = filename;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  setTimeout(() => URL.revokeObjectURL(url), 100);
+}
+
+function handleExport() {
+  if (state.txns.length === 0 && state.journals.length === 0) {
+    showToast('目前還沒有任何資料可匯出');
+    return;
+  }
+  const payload = buildExportPayload();
+  const d = new Date();
+  const stamp = `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+  downloadJSON(payload, `energy-ledger-${stamp}.json`);
+  showToast('已匯出本地備份');
+}
+
+// ---- Import flow ----
+let pendingImport = null;  // payload waiting for user's merge/replace decision
+
+function handleImportClick() {
+  document.getElementById('fileInput').click();
+}
+
+function handleFileSelected(event) {
+  const file = event.target.files[0];
+  if (!file) return;
+
+  const reader = new FileReader();
+  reader.onload = (e) => {
+    try {
+      const payload = JSON.parse(e.target.result);
+      if (!validateImportPayload(payload)) {
+        showToast('檔案格式不符合，無法匯入');
+        return;
+      }
+      pendingImport = payload;
+      openImportModal(payload);
+    } catch (err) {
+      showToast('無法讀取這個檔案，請確認是 JSON 格式');
+      console.error(err);
+    }
+  };
+  reader.readAsText(file);
+
+  // Reset so selecting the same file again still triggers onchange
+  event.target.value = '';
+}
+
+function validateImportPayload(payload) {
+  if (!payload || typeof payload !== 'object') return false;
+  if (payload.app !== 'energy-ledger') return false;
+  if (!payload.data || typeof payload.data !== 'object') return false;
+  // tolerate missing keys; default to empty arrays
+  if (payload.data.txns !== undefined && !Array.isArray(payload.data.txns)) return false;
+  if (payload.data.journals !== undefined && !Array.isArray(payload.data.journals)) return false;
+  if (payload.data.reviewedMonths !== undefined && !Array.isArray(payload.data.reviewedMonths)) return false;
+  return true;
+}
+
+function openImportModal(payload) {
+  const d = payload.data;
+  const exportedAt = payload.exportedAt ? new Date(payload.exportedAt) : null;
+  const exportedStr = exportedAt
+    ? `${exportedAt.getFullYear()} / ${String(exportedAt.getMonth()+1).padStart(2,'0')} / ${String(exportedAt.getDate()).padStart(2,'0')}`
+    : '未知';
+
+  const preview = document.getElementById('importPreview');
+  preview.innerHTML = `
+    <div class="modal-preview-row">
+      <span class="label">匯出時間</span>
+      <span class="val">${exportedStr}</span>
+    </div>
+    <div class="modal-preview-row">
+      <span class="label">交易筆數</span>
+      <span class="val">${(d.txns || []).length} 筆</span>
+    </div>
+    <div class="modal-preview-row">
+      <span class="label">日記則數</span>
+      <span class="val">${(d.journals || []).length} 則</span>
+    </div>
+    <div class="modal-preview-row">
+      <span class="label">已回顧月份</span>
+      <span class="val">${(d.reviewedMonths || []).length} 個</span>
+    </div>
+    <div class="modal-preview-row">
+      <span class="label">目前本機</span>
+      <span class="val">${state.txns.length} 筆交易 · ${state.journals.length} 則日記</span>
+    </div>
+  `;
+  document.getElementById('importModal').classList.add('show');
+}
+
+function closeImportModal() {
+  document.getElementById('importModal').classList.remove('show');
+  pendingImport = null;
+}
+
+function mergeById(currentList, incomingList) {
+  // For txns and journals: use id as key. Incoming wins on conflict.
+  const map = new Map();
+  (currentList || []).forEach(item => map.set(item.id, item));
+  (incomingList || []).forEach(item => map.set(item.id, item));
+  return Array.from(map.values());
+}
+
+function mergeReviewedMonths(currentList, incomingList) {
+  return Array.from(new Set([...(currentList || []), ...(incomingList || [])]));
+}
+
+async function applyImport(mode) {
+  if (!pendingImport) return;
+  const incoming = pendingImport.data;
+
+  if (mode === 'replace') {
+    state.txns = incoming.txns || [];
+    state.journals = incoming.journals || [];
+    state.reviewedMonths = incoming.reviewedMonths || [];
+  } else {
+    // merge
+    state.txns = mergeById(state.txns, incoming.txns);
+    // sort txns by date descending so list rendering stays consistent
+    state.txns.sort((a, b) => new Date(b.date) - new Date(a.date));
+    state.journals = mergeById(state.journals, incoming.journals);
+    state.reviewedMonths = mergeReviewedMonths(state.reviewedMonths, incoming.reviewedMonths);
+  }
+
+  // Reset some UI state
+  state.viewYear = null;
+  state.viewMonth = null;
+  state.editingJournalId = null;
+  state.showAllJournals = false;
+
+  await saveTxns();
+  await saveJournals();
+  await saveReviewed();
+
+  // Re-render everything
+  renderTxnList();
+  renderFlow();
+  renderAtlas();
+  renderJournal();
+  renderPastJournals();
+  updateTabBadge();
+
+  closeImportModal();
+  showToast(mode === 'replace' ? '已用匯入檔取代所有資料' : '已合併匯入的資料');
+}
+
+// ---- Wire up event handlers ----
+document.getElementById('exportBtn').onclick = handleExport;
+document.getElementById('importBtn').onclick = handleImportClick;
+document.getElementById('fileInput').addEventListener('change', handleFileSelected);
+document.getElementById('importMergeBtn').onclick = () => applyImport('merge');
+document.getElementById('importReplaceBtn').onclick = () => {
+  if (state.txns.length === 0 && state.journals.length === 0) {
+    // nothing to lose, no need to confirm
+    applyImport('replace');
+    return;
+  }
+  if (confirm('確定要用匯入檔取代目前所有資料嗎？此動作無法復原。')) {
+    applyImport('replace');
+  }
+};
+document.getElementById('importCancelBtn').onclick = closeImportModal;
+document.getElementById('importModal').addEventListener('click', (e) => {
+  if (e.target.id === 'importModal') closeImportModal();
+});
+
 document.getElementById('resetBtn').onclick = async () => {
   if (!confirm('確定要清空所有紀錄嗎？此動作無法復原。')) return;
   state.txns = [];
@@ -2385,6 +2822,14 @@ document.getElementById('resetBtn').onclick = async () => {
   renderPastJournals();
   updateTabBadge();
 })();
+
+// ---- Register service worker ----
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('service-worker.js')
+      .catch(err => console.log('Service worker registration failed:', err));
+  });
+}
 </script>
 </body>
 </html>

@@ -4,7 +4,7 @@
  * Bump CACHE_VERSION whenever the HTML changes to force-refresh users.
  */
 
-const CACHE_VERSION = 'energy-ledger-v2';
+const CACHE_VERSION = 'energy-ledger-v3';
 const APP_SHELL = [
   './',
   './index.html',

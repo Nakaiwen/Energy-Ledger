@@ -1176,6 +1176,33 @@
     letter-spacing: 0.18em;
     margin-bottom: 6px;
   }
+  .journal-today-badge {
+    display: inline-block;
+    margin-left: 10px;
+    padding: 2px 9px;
+    background: var(--gold);
+    color: var(--bg-card);
+    font-family: "Noto Serif TC", serif;
+    font-size: 10px;
+    letter-spacing: 0.18em;
+    border-radius: 100px;
+    vertical-align: 1px;
+    font-style: normal;
+  }
+  .journal-entry.is-today {
+    position: relative;
+    padding-left: 14px;
+  }
+  .journal-entry.is-today::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    top: 14px;
+    bottom: 14px;
+    width: 2px;
+    background: var(--gold-soft);
+    border-radius: 1px;
+  }
   .journal-entry-content {
     font-size: 14px;
     color: var(--ink);
@@ -1701,26 +1728,25 @@ async function handleJournalSave() {
 // ---- Past journals: list, edit, delete ----
 function renderPastJournals() {
   const today = todayDateKey();
-  const past = state.journals
-    .filter(j => j.date !== today)
+  const all = [...state.journals]
     .sort((a, b) => b.date.localeCompare(a.date));
 
   const wrap = document.getElementById('pastJournalList');
-  if (!past.length) {
+  if (!all.length) {
     wrap.innerHTML = '<div class="empty">還沒有過往的紀錄。<br><span style="color:var(--ink-4); font-size:12px;">每天的小日記儲存後，會在這裡逐漸累積。</span></div>';
     return;
   }
 
   const limit = 5;
   const showAll = state.showAllJournals;
-  const visible = showAll ? past : past.slice(0, limit);
-  const hasMore = !showAll && past.length > limit;
-  const canCollapse = showAll && past.length > limit;
+  const visible = showAll ? all : all.slice(0, limit);
+  const hasMore = !showAll && all.length > limit;
+  const canCollapse = showAll && all.length > limit;
 
-  const entries = visible.map(j => renderJournalEntryEditable(j)).join('');
+  const entries = visible.map(j => renderJournalEntryEditable(j, today)).join('');
   let extra = '';
   if (hasMore) {
-    extra = `<button class="show-all-btn" data-action="show-all">顯示全部 ${past.length} 則</button>`;
+    extra = `<button class="show-all-btn" data-action="show-all">顯示全部 ${all.length} 則</button>`;
   } else if (canCollapse) {
     extra = `<button class="show-all-btn" data-action="show-less">收　合</button>`;
   }
@@ -1728,13 +1754,15 @@ function renderPastJournals() {
   wrap.innerHTML = `<div class="journal-entries">${entries}</div>${extra}`;
 }
 
-function renderJournalEntryEditable(j) {
+function renderJournalEntryEditable(j, today) {
   const isEditing = state.editingJournalId === j.id;
   const dateLabel = j.date.replace(/-/g, ' / ');
+  const isToday = j.date === today;
+  const todayBadge = isToday ? `<span class="journal-today-badge">今天</span>` : '';
   if (isEditing) {
     return `
-      <div class="journal-entry editing">
-        <div class="journal-entry-date">${dateLabel}</div>
+      <div class="journal-entry editing${isToday ? ' is-today' : ''}">
+        <div class="journal-entry-date">${dateLabel}${todayBadge}</div>
         <textarea class="journal-edit-area" data-id="${j.id}">${escapeHtml(j.content)}</textarea>
         ${j.prompt ? `<div class="journal-entry-prompt">來自提示：${escapeHtml(j.prompt)}</div>` : ''}
         <div class="journal-entry-actions">
@@ -1744,8 +1772,8 @@ function renderJournalEntryEditable(j) {
       </div>`;
   }
   return `
-    <div class="journal-entry">
-      <div class="journal-entry-date">${dateLabel}</div>
+    <div class="journal-entry${isToday ? ' is-today' : ''}">
+      <div class="journal-entry-date">${dateLabel}${todayBadge}</div>
       <div class="journal-entry-content">${escapeHtml(j.content)}</div>
       ${j.prompt ? `<div class="journal-entry-prompt">來自提示：${escapeHtml(j.prompt)}</div>` : ''}
       <div class="journal-entry-actions">
